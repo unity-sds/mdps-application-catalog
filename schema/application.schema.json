@@ -1,0 +1,52 @@
+{  
+    "$schema": "https://json-schema.org/draft/2020-12/schema",  
+    "$id": "https://raw.githubusercontent.com/unity-sds/mdps-application-catalog/refs/heads/main/schema/application_record.schema.json",
+    "title": "Application Package",
+    "description": "An OGC compliant application package",
+    "type": "object",
+    "properties": {
+        "author": {
+            "type": "object",
+            "properties": {
+                "name": { 
+                    "type": "string"
+                }
+            }
+        },
+        "contributror": {
+            "type": "object",
+            "properties": {
+                "name": { 
+                    "type": "string"
+                }
+            }
+        },
+        "citation": {
+            "type": "string"
+        },
+        "codeRepository": {
+            "type": "string"
+        },
+        "dateCreated": {
+            "type": "string"
+        },
+        "license": {
+            "type": "string"
+        },
+        "softwareVersion": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        },
+        "releaseNotes": {
+            "type": "string"
+        },
+        "keywords": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}
