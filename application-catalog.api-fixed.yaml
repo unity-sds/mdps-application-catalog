@@ -1,0 +1,194 @@
+openapi: 3.0.4
+info:
+  title: An application catalog for applications and their artifacts
+  description: |
+    API documentation of the application catalog.
+    - List applications
+    - Register a new application
+    - Retrieve application record
+    - Retrieve artifacts related to an application
+  version: 0.0.1
+paths:
+  /application/list:
+    get:
+      summary: Get all App Packages
+      description: Retrieves all App Packages from the catalog
+      operationId: get-all-apps
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/applicationObject'
+  /application/register:
+    post:
+      summary: Registers a new application
+      description: Registers a new application on the catalog
+      operationId: register-app
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/applicationObject'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationObject'
+        '400':
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObject'
+  /application/{applicationName}:
+    get:
+      summary: Get the application
+      description: gets the application from the catalog
+      operationId: get-application
+      parameters:
+        - $ref: '#/components/parameters/applicationNameParam'
+      responses:
+        '200':
+          description: application exists in catalog and is successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationObject'
+        '404':
+          description: application does not exist in the catalog
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+              example: Application not found or invalid
+  /application/{applicationName}/artifacts:
+    get:
+      summary: Get the application artifacts
+      description: gets the application artifacts, if there are any
+      operationId: get-application-artifacts
+      parameters:
+        - $ref: '#/components/parameters/applicationNameParam'
+      responses:
+        '200':
+          description: application exists
+          content:
+            application/json:
+             schema:
+              $ref: '#/components/schemas/applicationArtifactsObject'
+        '404':
+          description: application does not exist in the catalog
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+              example: Application not found or invalid
+components:
+  parameters:
+    applicationNameParam:
+      description: Application name
+      name: applicationName 
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 256
+  schemas:
+    errorMessage:
+      type: string
+      maxLength: 256
+      description: a simple and descriptive error message
+    errorObject:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          description: the error status statusCode
+        message:
+          type: string
+          description: the error message
+        data:
+          type: string
+          description: any data related to the error
+    applicationObject:
+      type: object
+      properties:
+        name:
+          type: string
+          description: the application name
+        description:
+          type: string
+          maxLength: 256
+          description: the application description
+        namespace:
+          type: string
+          description: the application namespace
+        author:
+          # $ref: '#/components/schemas/user'
+          type: string
+          description: author username (user object?)
+        version:
+          type: integer
+          description: the application version
+        dateCreated:
+          type: string
+          format: date-time
+          description: the date the application was created
+        dateModified:
+          type: string
+          format: date-time
+          description: the date the application was last modified
+    artifactObject:
+      type: object 
+      properties:
+        uploader:
+          # $ref: '#/components/schemas/user'
+          type: string
+          description: the uploader (user object?)
+        name:
+          type: string
+          description: name of the artifact
+        version:
+          type: integer
+          description: version number of the artifact
+        description:
+          type: string
+          maxLength: 256
+          description: artifact description
+        dateCreated:
+          type: string
+          format: date-time
+          description: date the artifact was created
+        dateUpdated:
+          type: string
+          format: date-time
+          description: date the artifact was last updated
+        sourceRepo:
+          type: string
+          description: where the artifact source resides
+        # application:
+        #   $ref: '#/component/schemas/applicationObject'
+    applicationArtifactsObject:
+      type: array
+      items:
+        $ref: '#/components/schemas/artifactObject'
+    user:
+      type: object
+      properties:
+        username:
+          type: string
+          description: user username (cognito?)
+        givenName:
+          type: string
+          description: user given name
+        surname:
+          type: string
+          description: user last name
+        #groups or namespaces?
