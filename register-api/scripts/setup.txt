@@ -1,0 +1,24 @@
+(.venv) (base) gangl@MT-407250 mdps-artifact-catalog % docker exec -it 4d8a0e9ec0b9 /bin/bash
+root@4d8a0e9ec0b9:/# ls
+bin  boot  dev	docker-entrypoint-initdb.d  etc  home  lib  media  mnt	opt  proc  root  run  sbin  srv  sys  tmp  usr	var
+root@4d8a0e9ec0b9:/# psql 
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "root" does not exist
+root@4d8a0e9ec0b9:/# psql -u POSTGRES
+/usr/lib/postgresql/17/bin/psql: invalid option -- 'u'
+psql: hint: Try "psql --help" for more information.
+root@4d8a0e9ec0b9:/# psql --user POSTGRES
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "POSTGRES" does not exist
+root@4d8a0e9ec0b9:/# psql --user postgres
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+postgres=# create database mdps_catalog
+postgres-# ;
+CREATE DATABASE
+postgres=# exit
+root@4d8a0e9ec0b9:/# exit
+exit
+(.venv) (base) gangl@MT-407250 mdps-artifact-catalog % python -m app.db.init_db              
+Creating database tables...
+Database tables created successfully!
+(.venv) (base) gangl@MT-407250 mdps-artifact-catalog % 

@@ -1,0 +1,5 @@
+**/.venv
+**/.env
+register-api/scripts/postgres-data
+register-api/storage
+**/*.pyc

@@ -1,0 +1,570 @@
+---
+openapi: 3.1.0
+info:
+  title: Artifact Catalog API
+  description: API for the NASA Artifact Catalog system that manages OGC application
+    packages (CWL files + Docker containers).
+  version: 1.0.0
+paths:
+  "/catalog-job/{job_id}":
+    get:
+      summary: Get Job Status
+      operationId: get_job_status_catalog_job__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CatalogJobStatus"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/{namespace}/ogc-application-package":
+    post:
+      summary: Register Application Package
+      operationId: register_application_package__namespace__ogc_application_package_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Namespace
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              "$ref": "#/components/schemas/Body_register_application_package__namespace__ogc_application_package_post"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CatalogJobResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/{namespace}/{artifactName}/{version}":
+    get:
+      summary: Get Application Package Details
+      operationId: get_application_package_details__namespace___artifactName___version__get
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Namespace
+      - name: artifactName
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifactname
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ApplicationPackageDetails"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/{namespace}/{artifactName}/{version}/publish":
+    post:
+      summary: Publish Application Package
+      operationId: publish_application_package__namespace___artifactName___version__publish_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Namespace
+      - name: artifactName
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifactname
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PublishResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/{namespace}/{artifactName}/{version}/unpublish":
+    post:
+      summary: Unpublish Application Package
+      operationId: unpublish_application_package__namespace___artifactName___version__unpublish_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Namespace
+      - name: artifactName
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifactname
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PublishResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/cwl/{namespace}/{artifactName}/{version}":
+    get:
+      summary: Get Cwl File
+      operationId: get_cwl_file_cwl__namespace___artifactName___version__get
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Namespace
+      - name: artifactName
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifactname
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/application-packages":
+    get:
+      summary: Discover Packages
+      operationId: discover_packages_application_packages_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: namespace
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by namespace
+          title: Namespace
+        description: Filter by namespace
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by application name
+          title: Name
+        description: Filter by application name
+      - name: published
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by publication status
+          default: true
+          title: Published
+        description: Filter by publication status
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: Page number for pagination
+          default: 1
+          title: Page
+        description: Page number for pagination
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: Number of items per page
+          default: 20
+          title: Limit
+        description: Number of items per page
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PackageDiscoveryResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+components:
+  schemas:
+    ApplicationPackageDetails:
+      properties:
+        namespace:
+          type: string
+          title: Namespace
+        artifactName:
+          type: string
+          title: Artifactname
+        artifactVersion:
+          type: string
+          title: Artifactversion
+        cwlId:
+          type: string
+          title: Cwlid
+        dateCreated:
+          type: string
+          format: date-time
+          title: Datecreated
+        dateUpdated:
+          type: string
+          format: date-time
+          title: Dateupdated
+        published:
+          type: boolean
+          title: Published
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        uploader:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Uploader
+        publishedDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Publisheddate
+        sourceRepository:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourcerepository
+        dockerImage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dockerimage
+        cwlUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cwlurl
+      type: object
+      required:
+      - namespace
+      - artifactName
+      - artifactVersion
+      - cwlId
+      - dateCreated
+      - dateUpdated
+      - published
+      title: ApplicationPackageDetails
+    ApplicationPackageSummary:
+      properties:
+        namespace:
+          type: string
+          title: Namespace
+        artifactName:
+          type: string
+          title: Artifactname
+        artifactVersion:
+          type: string
+          title: Artifactversion
+        dateCreated:
+          type: string
+          format: date-time
+          title: Datecreated
+        published:
+          type: boolean
+          title: Published
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        publishedDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Publisheddate
+        uploader:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Uploader
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+        detailsUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detailsurl
+      type: object
+      required:
+      - namespace
+      - artifactName
+      - artifactVersion
+      - dateCreated
+      - published
+      title: ApplicationPackageSummary
+    Body_register_application_package__namespace__ogc_application_package_post:
+      properties:
+        request:
+          type: string
+          format: binary
+          title: Request
+      type: object
+      required:
+      - request
+      title: Body_register_application_package__namespace__ogc_application_package_post
+    CatalogJobResponse:
+      properties:
+        jobId:
+          type: string
+          title: Jobid
+        status:
+          type: string
+          title: Status
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        progress:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress
+      type: object
+      required:
+      - jobId
+      - status
+      title: CatalogJobResponse
+    CatalogJobStatus:
+      properties:
+        jobId:
+          type: string
+          title: Jobid
+        status:
+          type: string
+          title: Status
+        namespace:
+          type: string
+          title: Namespace
+        filename:
+          type: string
+          title: Filename
+        createdAt:
+          type: string
+          format: date-time
+          title: Createdat
+        updatedAt:
+          type: string
+          format: date-time
+          title: Updatedat
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        progress:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress
+        errorDetails:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetails
+        catalogEntryUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Catalogentryurl
+      type: object
+      required:
+      - jobId
+      - status
+      - namespace
+      - filename
+      - createdAt
+      - updatedAt
+      title: CatalogJobStatus
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            "$ref": "#/components/schemas/ValidationError"
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PackageDiscoveryResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        limit:
+          type: integer
+          title: Limit
+        packages:
+          items:
+            "$ref": "#/components/schemas/ApplicationPackageSummary"
+          type: array
+          title: Packages
+      type: object
+      required:
+      - total
+      - page
+      - limit
+      - packages
+      title: PackageDiscoveryResponse
+    PublishResponse:
+      properties:
+        namespace:
+          type: string
+          title: Namespace
+        artifactName:
+          type: string
+          title: Artifactname
+        artifactVersion:
+          type: string
+          title: Artifactversion
+        published:
+          type: boolean
+          title: Published
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      type: object
+      required:
+      - namespace
+      - artifactName
+      - artifactVersion
+      - published
+      title: PublishResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+
