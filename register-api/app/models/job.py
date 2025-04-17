@@ -23,3 +23,15 @@ class Job(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now()) 
     artifact_name = Column(String)
     artifact_version = Column(String)
+
+    def __str__(self) -> str:
+        """Return a string representation of the Job."""
+        return (
+            f"Job(id={self.id}, "
+            f"status={self.status.value}, "
+            f"progress={self.progress}%, "
+            f"namespace={self.namespace}, "
+            f"filename={self.filename}, "
+            f"artifact={self.artifact_name or 'N/A'}:{self.artifact_version or 'N/A'}, "
+            f"message={self.message or 'N/A'})"
+        )
