@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Database Configuration
-    DATABASE_URL: Optional[str] = None
+    DATABASE_URL: Optional[str] = "database_url"
     
     # Storage Configuration
     STORAGE_PATH: str = "./storage"
@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     # CORS Configuration
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
     
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "artifact_catalog"
+
+    DESTINATION_REGISTRY : str = None
+
     class Config:
         case_sensitive = True
         env_file = ".env"

@@ -11,5 +11,6 @@ setup(
         "cwl-utils",
         "ogc-ap-validator",
         "schema-salad",
+        "podman"
     ],
 ) 

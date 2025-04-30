@@ -14,3 +14,22 @@ pip install -r requirements.txt
 
 ### Run the server
 .venv/bin/uvicorn main:app --reload
+
+
+
+## Docker Setup
+`docker-compose up`
+
+
+## Database Cleanup
+
+```
+# Stop the containers
+docker-compose down
+
+# Remove the volume
+docker-compose down -v
+
+# Start fresh
+docker-compose up --build
+```

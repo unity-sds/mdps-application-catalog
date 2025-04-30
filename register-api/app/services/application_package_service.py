@@ -158,6 +158,10 @@ class ApplicationPackageService:
             docker_image = self.extract_docker_image(cwl_tool)
             artifact_version = self._extract_artifact_version(cwl_workflow)  # TODO: Implement version extraction
             
+            # TODO 
+            #new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)
+
+            
 
 
             # Create or update package
@@ -219,12 +223,17 @@ class ApplicationPackageService:
         )
 
     def get_package(self, namespace: str, artifact_name: str, version: str) -> Optional[ApplicationPackage]:
-        """Get application package by namespace, name and version."""
+        """List application package by namespace, name and version."""
         return self.db.query(ApplicationPackage).filter(
             ApplicationPackage.namespace == namespace,
             ApplicationPackage.artifact_name == artifact_name,
             ApplicationPackage.artifact_version == version
         ).first()
+
+    def list_packages(self, namespace: str, artifact_name: str) -> Optional[list[ApplicationPackage]]:       
+        """Get application package by namespace, name and version."""
+        # TODO add filtering
+        return self.db.query(ApplicationPackage).all()
 
     def update_package_publish_status(
         self, 
@@ -242,3 +251,29 @@ class ApplicationPackageService:
         package.published_date = datetime.now() if published else None
         self.db.commit()
         return package 
+    
+
+    #             new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)
+
+    def pull_image(self, namespace, artifact_name, artifact_version, cwl_image_name: str)-> str:
+        # aws ecr get-login-password --region us-west-2 | skopeo login --username AWS --password-stdin 237868187491.dkr.ecr.us-west-2.amazonaws.com
+        # Login Succeeded!
+        # skopeo copy  --override-os linux --override-arch amd64 docker://python:latest docker://237868187491.dkr.ecr.us-west-2.amazonaws.com/gangl/python:latest 
+        dest_registry: str = settings.DESTINATION_REGISTRY
+        try:
+            # login to ECR 
+            # create repo if it doesn't exist
+            # Create new docker repo name
+            dest_image = f"{dest_registry}/{namespace}/{artifact_name}/{artifact_version}"
+            # copy docker container
+            
+            logger.info(f"Image {dest_image} pulled successfully.")
+        # except podman.errors.APIError as e:
+        #     logger.error(f"Error pulling image: {e}")
+        #     raise Exception(f"Error pulling image: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
+            raise Exception(f"An unexpected error occurred: {e}")
+        finally:
+            if 'client' in locals():
+                client.close()
