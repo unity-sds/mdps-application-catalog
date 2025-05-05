@@ -1,0 +1,12 @@
+pyproject.toml
+setup.cfg
+setup.py
+invenio_test/__init__.py
+invenio_test/views.py
+invenio_test/webpack.py
+invenio_test.egg-info/PKG-INFO
+invenio_test.egg-info/SOURCES.txt
+invenio_test.egg-info/dependency_links.txt
+invenio_test.egg-info/entry_points.txt
+invenio_test.egg-info/requires.txt
+invenio_test.egg-info/top_level.txt
