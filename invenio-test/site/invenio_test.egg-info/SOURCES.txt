@@ -10,3 +10,5 @@ invenio_test.egg-info/dependency_links.txt
 invenio_test.egg-info/entry_points.txt
 invenio_test.egg-info/requires.txt
 invenio_test.egg-info/top_level.txt
+invenio_test/jsonschemas/__init__.py
+invenio_test/jsonschemas/records/__init__.py
