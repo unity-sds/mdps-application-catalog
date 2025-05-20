@@ -19,10 +19,6 @@ class Settings(BaseSettings):
     # CORS Configuration
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
     
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "artifact_catalog"
-
     DESTINATION_REGISTRY : str = None
 
     class Config:

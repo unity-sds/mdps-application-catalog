@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-#    platform: linux/amd64
+    platform: linux/amd64
     build: .
     ports:
       - "8000:8000"
@@ -29,9 +29,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mdps_catalog
     ports:
       - "5432:5432"
 

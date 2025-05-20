@@ -3,3 +3,8 @@
 register-api/scripts/postgres-data
 register-api/storage
 **/*.pyc
+**/*.DS_Store
+**/*.egg-info
+**/.terraform
+register-api/build
+**/__pycache__
