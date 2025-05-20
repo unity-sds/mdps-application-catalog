@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${NAME}
+  namespace: ${NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ${NAME}
+  template:
+    metadata:
+      labels:
+        name: ${NAME}
+    spec:
+      containers:
+        - name: ${NAME}
+          image: ${IMAGE_PREFIX}/${USERNAME}/${NAME}:${VERSION}
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 1Gi
