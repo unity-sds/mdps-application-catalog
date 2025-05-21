@@ -12,6 +12,8 @@ from app.models.job import Job, JobStatus
 from app.core.config import settings
 from ap_validator.app_package import AppPackage
 import schema_salad
+import shutil
+
 
 class ApplicationPackageService:
     def __init__(self, db: Session):
@@ -26,19 +28,23 @@ class ApplicationPackageService:
         except schema_salad.exceptions.ValidationException as e:
             return False, [str(e)]
 
-    def save_uploaded_file(self, namespace: str, file_content: bytes, filename: str) -> str:
+    def save_uploaded_file(self, namespace: str, jobId:str, file_content: bytes, filename: str) -> str:
         """Save the uploaded file to storage."""
-        namespace_dir = os.path.join(settings.STORAGE_PATH, namespace)
-        os.makedirs(namespace_dir, exist_ok=True)
+        job_upload_dir = os.path.join(settings.STORAGE_PATH, namespace, jobId)
+        os.makedirs(job_upload_dir, exist_ok=True)
         
-        file_path = os.path.join(namespace_dir, filename)
+        file_path = os.path.join(job_upload_dir, filename)
         with open(file_path, "wb") as buffer:
             buffer.write(file_content)
         return file_path
+    
+    def get_cwl_file_path(self, namespace, artifactName, version):
+        package = self.get_package(namespace, artifactName, version)
+        return package.cwl_url
 
-    def quick_parse(self, namespace: str, filename: str) -> Tuple[str, str]:
+    def quick_parse(self, namespace: str, jobId: str, filename: str) -> Tuple[str, str]:
         """Quick parse the uploaded file."""
-        file_path = os.path.join(settings.STORAGE_PATH, namespace, filename)
+        file_path = os.path.join(settings.STORAGE_PATH, namespace, jobId, filename)
         cwl_workflow, cwl_tool = self.parse_cwl_file(file_path)
 
         # the versions we're expecting contain a #workflow and #CommandLinetool in the uploaded CWL.
@@ -51,10 +57,10 @@ class ApplicationPackageService:
 
         return artifact_name, artifact_version
 
-    def create_job(self, namespace: str, filename: str, artifact_name: str = None, artifact_version: str = None) -> Job:
+    def create_job(self, jobId: str, namespace: str, filename: str, artifact_name: str = None, artifact_version: str = None) -> Job:
         """Create a new job record."""
         job = Job(
-            id=str(uuid.uuid4()),
+            id=jobId,
             status=JobStatus.PENDING,
             message="Job queued for processing",
             progress=0,
@@ -146,7 +152,7 @@ class ApplicationPackageService:
             self.update_job_status(job_id, JobStatus.PROCESSING, "Processing application package")
             
             # Parse CWL file and extract information
-            file_path = os.path.join(settings.STORAGE_PATH, namespace, filename)
+            file_path = os.path.join(settings.STORAGE_PATH, namespace, job_id, filename)
             cwl_workflow, cwl_tool = self.parse_cwl_file(file_path)
             
             # the versions we're expecting contain a #workflow and #CommandLinetool in the uploaded CWL.
@@ -158,6 +164,17 @@ class ApplicationPackageService:
             docker_image = self.extract_docker_image(cwl_tool)
             artifact_version = self._extract_artifact_version(cwl_workflow)  # TODO: Implement version extraction
             
+            final_dir = os.path.join(settings.STORAGE_PATH, namespace, artifact_name, artifact_version)
+            os.makedirs(final_dir, exist_ok=True)
+            dest_file_path = os.path.join(final_dir, filename)
+
+            # Copy cwl to correct location
+           
+
+
+            shutil.copy(file_path, dest_file_path)
+
+
             # TODO 
             #new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)
 
@@ -170,7 +187,7 @@ class ApplicationPackageService:
                 artifact_name=artifact_name,
                 artifact_version=artifact_version,
                 docker_image=docker_image,
-                cwl_url=f"/storage/{namespace}/{filename}",
+                cwl_url=dest_file_path,
                 job_id=job_id
             )
 

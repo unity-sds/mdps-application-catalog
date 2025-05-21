@@ -38,12 +38,6 @@ variable "db_username" {
   default     = "postgres"
 }
 
-variable "db_password" {
-  description = "Database master password"
-  type        = string
-  sensitive   = true
-}
-
 variable "container_image" {
   description = "Docker image for the application"
   type        = string

@@ -64,6 +64,57 @@ module "db" {
   tags = var.tags
 }
 
+resource "aws_kms_key" "efs_key" {
+  description             = "KMS key for EFS encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+}
+
+resource "aws_efs_file_system" "storage" {
+  encrypted      = true
+  kms_key_id     = aws_kms_key.efs_key.arn
+  tags = {
+    Name = "ECS-EFS-FS-APP-CATALOG"
+  }
+}
+
+resource "aws_efs_mount_target" "efs-mt" {
+  for_each        = toset(data.aws_subnets.private_subnets.ids)
+  file_system_id  = aws_efs_file_system.storage.id
+  subnet_id       = each.value
+  security_groups = [aws_security_group.app-catalog-efs.id, aws_security_group.ecs_tasks.id]
+}
+
+resource "aws_efs_access_point" "cwl" {
+  file_system_id = aws_efs_file_system.storage.id
+  root_directory {
+    path = "/cwl"
+    creation_info {
+      owner_gid   = 0
+      owner_uid   = 50000
+      permissions = "0777"
+    }
+  }
+}
+
+resource "aws_security_group" "app-catalog-efs" {
+  name        = "AppCatalogAirflowEfsSg"
+  description = "Security group for the EFS used in appcatalog"
+  vpc_id      = data.aws_vpc.application_vpc.id
+}
+
+resource "aws_security_group_rule" "app-catalog-efs" {
+  type              = "ingress"
+  from_port         = 2049
+  to_port           = 2049
+  protocol          = "tcp"
+  security_group_id = aws_security_group.app-catalog-efs.id
+  cidr_blocks       = [data.aws_vpc.application_vpc.cidr_block] # VPC CIDR to allow entire VPC. Adjust as necessary.
+}
+
+
+
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
@@ -91,6 +142,12 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         }
       ]
+      mountPoints = [
+          {
+              containerPath = "/usr/share/storage",
+              sourceVolume = "efs-cwl"
+          }
+      ]
       environment = [
         {
           name  = "DATABASE_URL"
@@ -110,7 +167,7 @@ resource "aws_ecs_task_definition" "app" {
         },
         {
           name  = "STORAGE_PATH"
-          value = "/app/storage"
+          value = "/usr/share/storage"
         },
         {
           name  = "ALGORITHM"
@@ -131,6 +188,17 @@ resource "aws_ecs_task_definition" "app" {
       }
     }
   ])
+  volume {
+    name      = "efs-cwl"
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.storage.id
+      root_directory = "/"
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.cwl.id
+      }
+    }
+  }
 }
 
 # ECS Service

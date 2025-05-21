@@ -7,11 +7,11 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ${STORAGE_PATH}:/app/storage
+      - ${STORAGE_PATH}:/usr/share/storage
       - .:/app
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - STORAGE_PATH=/app/storage
+      - STORAGE_PATH=/usr/share/storage
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
