@@ -5,7 +5,7 @@
 # subnet group and label
 resource "aws_db_subnet_group" "catalog" {
     name = "catalog"
-    subnet_ids = module.vpc_rds.public_subnets
+    subnet_ids = module.vpc.public_subnets
 
     tags = {
         Name = "Catalog"
