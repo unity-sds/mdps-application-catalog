@@ -2,23 +2,10 @@
 # module VPC -> resource subnet group and label ->  resource db instance -> resource db parameter group
 # catalog is the resource name placeholder
 
-# VPC
-module "vpc" {
-    source = ""
-    version = ""
-
-    name = "catalog"
-    cidr = ""
-    azs = ""
-    public_submets = []
-    enable_dns_hostnames = true
-    enable_dns_support = true
-}
-
 # subnet group and label
 resource "aws_db_subnet_group" "catalog" {
     name = "catalog"
-    subnet_ids = module.vpc.public_subnets
+    subnet_ids = module.vpc_rds.public_subnets
 
     tags = {
         Name = "Catalog"
@@ -27,14 +14,14 @@ resource "aws_db_subnet_group" "catalog" {
 
 # db instance postgres
 resource "aws_db_instance" "catalog" {
-    identifier = ""
-    instance_class = ""
-    allocated_storage = ""
-    engine = ""
-    engine_version = ""
+    identifier = "catalog"
+    instance_class = "db.t3.micro"
+    allocated_storage = 2
+    engine = "postgres"
+    engine_version = "14.17"
 
     #creds for root user
-    username = ""
+    username = "invenio"
     password = var.db_password
 
     db_subnet_group_name = aws_db_subnet_group.catalog.name

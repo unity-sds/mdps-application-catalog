@@ -11,12 +11,19 @@ terraform {
 
 # configures a specified provider
 provider "aws" {
-    region = "us-west-2"
+    region = var.aws_region
 }
 
 # used to deploy packages in kubernetes
 provider "helm" {
-    kubernetes = {
-        config_path = ""
+    kubernetes {
+        host = module.eks.cluster_endpoint
+        cluster_ca_certificate = base64decode(module.eks.cluster_ca_certificate)
+        exec {
+            api_version = "client.authentication.k8s.io/v1beta1"
+            args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+            command     = "aws"
+        }
+        # config_path = "~/.kube/config"
     }
 }
