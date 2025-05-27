@@ -2,7 +2,7 @@
 # AWS MQ RabbitMQ
 module "vpc" {
     source = "terraform-aws-modules/vpc/aws"
-    version = "2.77.0"
+    version = "5.21.0"
 
     name = "aws_vpc"
     cidr = "10.0.0.0/16"

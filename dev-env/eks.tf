@@ -1,12 +1,15 @@
 module "eks" {
     source = "terraform-aws-modules/eks/aws"
-    version = "~> 19.0"
+    version = "20.36.0"
 
     cluster_name = "cat-cluster"
     cluster_version = "1.27"
+    subnet_ids = module.vpc.private_subnets
+    vpc_id = module.vpc.vpc_id
+    control_plane_subnet_ids = module.vpc.private_subnets
 
     providers = {
-        aws = aws.region
+        aws = provider.aws.aws_region
     }
 
     cluster_endpoint_public_access = true
@@ -22,21 +25,24 @@ module "eks" {
             most_recent = true
         }
     }
+    
+    eks_managed_node_group_defaults = {
+        instance_types = []
+    }
 
-    # vpc_id = 
-    # subnet_ids =
-    # control_plane_subnet_ids =
+    eks_managed_node_groups = {
+        default = {
+            min_size = 1
+            max_size = 3
+            desired_size = 1
 
-    # eks_managed_node_group_defaults = {
-        
-    # }
+            instance_types = ["t3.medium"]
+            capacity_type = "SPOT" #ON_DEMAND for prod?
+        }
+    }
 
-    # eks_managed_node_groups = {
-
-    # }
-
-    # tags = {
-    #     terraform = "true"
-    #     env = "dev"
-    # }
+    tags = {
+        terraform = "true"
+        env = "dev"
+    }
 }
