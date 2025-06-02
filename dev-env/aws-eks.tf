@@ -8,10 +8,6 @@ module "eks" {
     vpc_id = module.vpc.vpc_id
     control_plane_subnet_ids = module.vpc.private_subnets
 
-    providers = {
-        aws = provider.aws.aws_region
-    }
-
     cluster_endpoint_public_access = true
 
     cluster_addons = {
@@ -26,6 +22,9 @@ module "eks" {
         }
     }
     
+    # create_iam_role = true
+    # iam_role_name = "app-catalog-dev-EKSClusterRole" # to do: dynamic config
+
     eks_managed_node_group_defaults = {
         instance_types = []
     }

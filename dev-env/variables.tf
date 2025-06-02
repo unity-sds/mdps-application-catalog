@@ -5,6 +5,12 @@ variable "aws_region" {
     default     = "us-west-2"
 }
 
+variable "aws_profile" {
+    type = string
+    description = "aws credentials profile"
+    default = "kion-mdps"
+}
+
 # Postgres
 variable "db_password" {
     type        = string

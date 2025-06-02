@@ -2,7 +2,7 @@ terraform {
     required_providers {
         aws = {
             source  = "hashicorp/aws"
-            version = "~> 4.16"
+            version = ">= 5.79.0"
         }
         helm = {
             source = "hashicorp/helm"
@@ -20,6 +20,7 @@ terraform {
 # configures a specified provider
 provider "aws" {
     region = var.aws_region
+    profile = var.aws_profile
 }
 
 # used to deploy packages in kubernetes
