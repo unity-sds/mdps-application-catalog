@@ -35,21 +35,23 @@ async def register_application_package(
     db: Session = Depends(get_db)
 ):
     service = ApplicationPackageService(db)
-    
+
+    jobId = str(uuid.uuid4())
+
     # Save the uploaded file
     content = await request.read()
-    file_path = service.save_uploaded_file(namespace, content, request.filename)
+    file_path = service.save_uploaded_file(namespace, jobId, content, request.filename)
     
     # Validate the package
     is_valid, issues = service.validate_package(file_path)
     if not is_valid:
         raise HTTPException(status_code=400, detail="Invalid application package: " + json.dumps(issues))
     
-    # Parse the packag
-    artifact_name, artifact_version = service.quick_parse(namespace, request.filename)
+    # Parse the package
+    artifact_name, artifact_version = service.quick_parse(namespace, jobId, request.filename)
 
     # Create job record
-    job = service.create_job(namespace, request.filename, artifact_name, artifact_version)
+    job = service.create_job(jobId, namespace, request.filename, artifact_name, artifact_version)
     
 
     # Add background task
