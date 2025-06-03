@@ -11,6 +11,11 @@ variable "account_id" {
     description = "aws account id"
     sensitive = true
 }
+variable "ami_id" {
+    type = string
+    description = "ami id"
+    sensitive = true
+}
 
 # AWS RDS 
 variable "aws_region" {
