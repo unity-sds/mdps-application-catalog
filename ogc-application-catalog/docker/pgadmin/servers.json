@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "ogc-application-catalog-db",
+      "Group": "Servers",
+      "Host": "ogc-application-catalog-db-1",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "ogc-application-catalog",
+      "SSLMode": "prefer"
+    }
+  }
+}
