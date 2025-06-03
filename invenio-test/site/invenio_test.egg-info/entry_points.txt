@@ -1,5 +1,0 @@
-[invenio_assets.webpack]
-invenio_test_theme = invenio_test.webpack:theme
-
-[invenio_base.blueprints]
-invenio_test_views = invenio_test.views:create_blueprint
