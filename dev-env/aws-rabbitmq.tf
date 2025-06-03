@@ -4,10 +4,11 @@
 resource "aws_mq_broker" "rabbitmq_broker" {
     broker_name = "rabbitmq_broker"
     engine_type = "RabbitMQ"
-    engine_version = "3.13.7"
+    engine_version = "3.13"
     host_instance_type = "mq.t3.micro"
     deployment_mode = "SINGLE_INSTANCE"
-    subnet_ids = [module.vpc.public_subnets]
+    subnet_ids = [data.aws_subnets.public.ids[0]]
+    security_groups = [aws_security_group.rds_sg.id]
     publicly_accessible =  false
     configuration {
         id = aws_mq_configuration.rabbitmq_broker_config.id
@@ -26,6 +27,8 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     # }
     
     apply_immediately = true
+
+    depends_on = [data.aws_vpc.selected, aws_security_group.rds_sg]
 }
 
 # aws mq config
@@ -33,7 +36,7 @@ resource "aws_mq_configuration" "rabbitmq_broker_config" {
     description = "RabbitMQ Config"
     name = "rabbitmq-broker"
     engine_type = "RabbitMQ"
-    engine_version = "3.13.7"
+    engine_version = "3.13"
     data = <<-DATA
         # default mq delivery acknowledgement timeout is 30 minutes in milliseconds
         consumer_timeout = 1800000
