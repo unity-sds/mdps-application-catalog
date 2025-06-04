@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     
     DESTINATION_REGISTRY : str = None
 
+    AWS_DEFAULT_REGION: str = "us-west-2"
+    COGNITO_USER_POOL_ID: str = None
+
+
     class Config:
         case_sensitive = True
         env_file = ".env"

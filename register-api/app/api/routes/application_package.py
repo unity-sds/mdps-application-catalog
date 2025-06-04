@@ -23,6 +23,10 @@ from app.models.publish import PublishResponse
 from ap_validator.app_package import AppPackage
 from app.services.application_package_service import ApplicationPackageService
 
+from app.core.cognito import (
+    cognito_jwt_authorizer_access_token,
+    cognito_jwt_authorizer_id_token,
+)
 
 router = APIRouter()
 
@@ -31,7 +35,7 @@ async def register_application_package(
     namespace: str,
     request: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(cognito_jwt_authorizer_access_token),
     db: Session = Depends(get_db)
 ):
     service = ApplicationPackageService(db)
