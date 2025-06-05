@@ -39,6 +39,28 @@ For setting this up in keycloack, a client must be created (e.g. register-api) a
 * a role of 'user' should be created. keycloack users must be added to this client role to have access to the register-api.
 * a `client scopes` mapping, where `client-id-dedicated` (e.g. register-api-dedicated) has a keycloak `Group Membership` mapping titled `groups`. (controlled by the JWT_GROUPS key)
 
+
+### Getting a token
+
+For Keycloak, you'll need to hit the realm/client endpoint to generate a token:
+
+```bash
+curl -X POST -s {KEYCLOAK_URL}/realms/{REALM}}/protocol/openid-connect/token \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=password' \
+--data-urlencode 'client_id={CLIENT_ID}' \
+--data-urlencode 'username={USER}' \
+--data-urlencode 'password={PASSWORD}' | jq .access_token
+```
+
+For MDPS/cognito, you can use the built in mdps/sds client libraries:
+
+```
+from unity_sds_client.unity import Unity
+s = Unity(UnityEnvironments.DEV) # or TEST|PROD
+token = s._session.get_auth().get_token()
+```
+
 ## Development Setup
 
 ### Create a virtual env and install python
