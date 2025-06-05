@@ -1,10 +1,12 @@
 import json
+from typing import Annotated
 import cwl_utils
 import cwl_utils.parser
 from fastapi import APIRouter, Depends, File, UploadFile, BackgroundTasks, HTTPException
 from fastapi.logger import logger
 from fastapi.security import HTTPAuthorizationCredentials
 import schema_salad
+from app.core.jwt_authorizer import JWTAuthorizer
 from app.core.security import security
 from app.models.application_package import ApplicationPackageDetails, ApplicationPackageCreate
 from app.models.application_package_db import ApplicationPackage
@@ -23,21 +25,24 @@ from app.models.publish import PublishResponse
 from ap_validator.app_package import AppPackage
 from app.services.application_package_service import ApplicationPackageService
 
-from app.core.cognito import (
-    cognito_jwt_authorizer_access_token,
-    cognito_jwt_authorizer_id_token,
-)
+import app.core.auth as app_auth
+import app.core.keycloak as kc
+from starlette.status import HTTP_401_UNAUTHORIZED
+    
 
 router = APIRouter()
+
+authorizer = app_auth.get_authorizer()
 
 @router.post("/{namespace}/ogc-application-package", response_model=CatalogJobResponse)
 async def register_application_package(
     namespace: str,
     request: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks(),
-    credentials: HTTPAuthorizationCredentials = Depends(cognito_jwt_authorizer_access_token),
+    credentials: JWTAuthorizer = Depends(authorizer),
     db: Session = Depends(get_db)
 ):
+    
     service = ApplicationPackageService(db)
 
     jobId = str(uuid.uuid4())
@@ -46,6 +51,15 @@ async def register_application_package(
     content = await request.read()
     file_path = service.save_uploaded_file(namespace, jobId, content, request.filename)
     
+    # Check permissions for namespace...
+    # if the namespace is not in the list of groups defined for a user, and it is also NOT the username, they are unauthorized
+    # Should be a part of the jwtauth class.
+    if namespace not in credentials.get_groups() and namespace != credentials.get_username():
+        logger.error("User ({}) not in namespace group ({}) or does not match userid.".format(credentials.get_username(), namespace))
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized- you are not allowed to register to this namespace."
+        )
+
     # Validate the package
     is_valid, issues = service.validate_package(file_path)
     if not is_valid:

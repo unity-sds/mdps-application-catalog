@@ -5,25 +5,19 @@ import jwt
 from fastapi import Header, HTTPException
 from starlette.status import HTTP_401_UNAUTHORIZED
 
+from app.core.jwt_authorizer import JWTAuthorizer
 from app.core.config import settings
 from fastapi.logger import logger
-
-from app.core.jwt_authorizer import JWTAuthorizer
 
 
 # Modified from https://www.angelospanag.me/blog/verifying-a-json-web-token-from-cognito-in-python-and-fastapi
 # https://github.com/angelospanag/python-fastapi-cognito-jwt-verification/tree/main
 
-## TODO make this more generic as the JWT might not be a cognito one.
-
-#uses the host.docker.internal to access an external server on the hsot machine
-#jwt_validation_url = f"http://host.docker.internal:8080/realms/master/protocol/openid-connect/certs"
-
-# don't use 'host.docker.internal' here as it needs to match the cert
-#jwt_issuer = "http://localhost:8080/realms/master"
-
+## TODO make this more generic as the JWT might not be a cognito one. Add to env
 jwt_validation_url = settings.JWT_VALIDATION_URL
 jwt_issuer = settings.JWT_ISSUER_URL
+#jwt_validation_url = f"https://cognito-idp.{settings.AWS_DEFAULT_REGION}.amazonaws.com/{settings.COGNITO_USER_POOL_ID}/.well-known/jwks.json"
+#jwt_issuer = f"https://cognito-idp.{self.aws_default_region}.amazonaws.com/{self.cognito_user_pool_id}"
 
 jwks_client = jwt.PyJWKClient(
     jwt_validation_url
@@ -35,7 +29,7 @@ class CognitoTokenUse(Enum):
     ACCESS = "access"
 
 
-class CognitoJWTAuthorizer(JWTAuthorizer):
+class KeycloakJWTAuthorizer(JWTAuthorizer):
     def __init__(self):
         self.groups = []
         self.username = None
@@ -45,13 +39,12 @@ class CognitoJWTAuthorizer(JWTAuthorizer):
 
     def get_groups(self) -> list[str]:
         return self.groups
-    
+
     def __init__(
             self,
-            required_token_use: CognitoTokenUse,
             cognito_app_client_id: str,
             jwks_client: jwt.PyJWKClient,
-    ) -> None:
+    ):
         """Verify an incoming JWT using official AWS guidelines.
 
         https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html#amazon-cognito-user-pools-using-tokens-manually-inspect
@@ -68,11 +61,8 @@ class CognitoJWTAuthorizer(JWTAuthorizer):
             fastapi.HTTPException: Raised if a verification check of the incoming
                                      JWT fails
         """
-        self.required_token_use = required_token_use
         self.cognito_app_client_id = cognito_app_client_id
         self.jwks_client = jwks_client
-
-
 
     def __call__(self, authorization: Annotated[str | None, Header()] = None):
         """Verify an embedded Cognito JWT token in the 'Authorization' header.
@@ -142,58 +132,36 @@ class CognitoJWTAuthorizer(JWTAuthorizer):
                 status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
             ) from e
 
-        """
-        Check the token_use claim
-        * If you are only accepting the access token in your web API operations,
-          its value must be access.
-        * If you are only using the ID token, its value must be id.
-        * If you are using both ID and access tokens,
-          the token_use claim must be either id or access.
-        """
-        if self.required_token_use.value != claims["token_use"]:
-            raise HTTPException(
-                status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-            )
 
-        """
-        The "aud" claim in an ID token and the "client_id" claim in an access token 
-        should match the app client ID that was created in the Amazon Cognito user pool.
-        """
-        if self.required_token_use == CognitoTokenUse.ID:
-            if "aud" not in claims:
-                logger.error("not authorized -- id.aud")
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-                )
-            if claims["aud"] != self.cognito_app_client_id:
-                logger.error("not authorized -- id.aud != client_id")
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-                )
-        elif self.required_token_use == CognitoTokenUse.ACCESS:
-            if "client_id" not in claims:
-                logger.error("not authorized -- access.client_id ")
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-                )
-            if claims["client_id"] != self.cognito_app_client_id:
-                logger.error(f"{claims['client_id']} != {self.cognito_app_client_id}")
-                logger.error("not authorized -- access.client_id != client_id")
-                raise HTTPException(
-                    status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-                )
-        else:
+        # Check the token for access to the resources given the client_id:
+        if "resource_access" not in  claims:
+            logger.error("No resource_access entry in token" )
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized"
             )
         
-        self.username = claims['username']
+        if self.cognito_app_client_id not in  claims['resource_access']:
+            logger.error("No  " + self.cognito_app_client_id + " entry in token['resource_access']" )
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED, detail="You are unauthorized to access this resource. Please contact a service administrator for more info."
+            )
+        
+        #self.roles = claims['resource_access'][self.cognito_app_client_id]['roles']
+        self.username = claims['preferred_username']
         self.groups = claims[settings.JWT_GROUPS_KEY]
         return self
 
 
-jwt_authorizer_access_token = CognitoJWTAuthorizer(
-    CognitoTokenUse.ACCESS,
+
+jwt_authorizer_access_token = KeycloakJWTAuthorizer(
     settings.JWT_CLIENT_ID,
-    jwks_client,
+    jwks_client
 )
+
+# cognito_jwt_authorizer_id_token = CognitoJWTAuthorizer(
+#     CognitoTokenUse.ID,
+#     settings.AWS_DEFAULT_REGION,
+#     settings.COGNITO_USER_POOL_ID,
+#     settings.COGNITO_APP_CLIENT_ID,
+#     jwks_client,
+# )

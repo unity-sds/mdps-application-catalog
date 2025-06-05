@@ -21,8 +21,12 @@ class Settings(BaseSettings):
     
     DESTINATION_REGISTRY : str = None
 
-    AWS_DEFAULT_REGION: str = "us-west-2"
-    COGNITO_USER_POOL_ID: str = None
+    # JWT Info
+    JWT_AUTH_TYPE: str = "COGNITO" # one of: COGNITO, KEYCLOAK
+    JWT_VALIDATION_URL: str = None
+    JWT_ISSUER_URL: str = None
+    JWT_CLIENT_ID: str = None
+    JWT_GROUPS_KEY: str = None
 
 
     class Config:

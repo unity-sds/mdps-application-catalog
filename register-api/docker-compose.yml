@@ -1,9 +1,12 @@
 version: '3.8'
-
 services:
   app:
     platform: linux/amd64
     build: .
+#    develop:
+#      watch:
+#        - path: app/** # Watch all files in the current directory
+#          action: sync
     ports:
       - "8000:8000"
     volumes:
@@ -17,11 +20,11 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - DESTINATION_REGISTRY=${DESTINATION_REGISTRY}
       - PYTHONPATH=/app
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-      # AWS Keys
-      # 
-      #
+      - JWT_AUTH_TYPE=${JWT_AUTH_TYPE}
+      - JWT_VALIDATION_URL=${JWT_VALIDATION_URL}
+      - JWT_ISSUER_URL=${JWT_ISSUER_URL}
+      - JWT_GROUPS_KEY=${JWT_GROUPS_KEY}
+      - JWT_CLIENT_ID=${JWT_CLIENT_ID}
     depends_on:
       - db
     #command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
