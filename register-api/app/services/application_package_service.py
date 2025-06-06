@@ -239,12 +239,12 @@ class ApplicationPackageService:
             f"Error processing application package: {str(error)}"
         )
 
-    def get_package(self, namespace: str, artifact_name: str, version: str) -> Optional[ApplicationPackage]:
+    def get_package(self, namespace: str, artifact_name: str) -> Optional[ApplicationPackage]:
         """List application package by namespace, name and version."""
         return self.db.query(ApplicationPackage).filter(
             ApplicationPackage.namespace == namespace,
             ApplicationPackage.artifact_name == artifact_name,
-            ApplicationPackage.artifact_version == version
+            #ApplicationPackage.artifact_version == version
         ).first()
 
     def list_packages(self, namespace: str, artifact_name: str) -> Optional[list[ApplicationPackage]]:       

@@ -8,7 +8,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from app.core.config import settings
 from fastapi.logger import logger
 
-from app.core.jwt_authorizer import JWTAuthorizer
+from app.core.auth.jwt_authorizer import JWTAuthorizer
 
 
 # Modified from https://www.angelospanag.me/blog/verifying-a-json-web-token-from-cognito-in-python-and-fastapi

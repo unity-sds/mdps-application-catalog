@@ -5,7 +5,7 @@ import jwt
 from fastapi import Header, HTTPException
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from app.core.jwt_authorizer import JWTAuthorizer
+from app.core.auth.jwt_authorizer import JWTAuthorizer
 from app.core.config import settings
 from fastapi.logger import logger
 

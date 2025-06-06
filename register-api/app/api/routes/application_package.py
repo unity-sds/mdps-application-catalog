@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, BackgroundTasks, HTTPE
 from fastapi.logger import logger
 from fastapi.security import HTTPAuthorizationCredentials
 import schema_salad
-from app.core.jwt_authorizer import JWTAuthorizer
+from app.core.auth.jwt_authorizer import JWTAuthorizer
 from app.core.security import security
 from app.models.application_package import ApplicationPackageDetails, ApplicationPackageCreate
 from app.models.application_package_db import ApplicationPackage
@@ -25,8 +25,7 @@ from app.models.publish import PublishResponse
 from ap_validator.app_package import AppPackage
 from app.services.application_package_service import ApplicationPackageService
 
-import app.core.auth as app_auth
-import app.core.keycloak as kc
+import app.core.auth.auth as app_auth
 from starlette.status import HTTP_401_UNAUTHORIZED
     
 
@@ -54,7 +53,7 @@ async def register_application_package(
     # Check permissions for namespace...
     # if the namespace is not in the list of groups defined for a user, and it is also NOT the username, they are unauthorized
     # Should be a part of the jwtauth class.
-    if namespace not in credentials.get_groups() and namespace != credentials.get_username():
+    if not credentials.is_valid_namespace_op(namespace):
         logger.error("User ({}) not in namespace group ({}) or does not match userid.".format(credentials.get_username(), namespace))
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized- you are not allowed to register to this namespace."
@@ -85,6 +84,22 @@ async def register_application_package(
         status="pending",
         message=f"Registration of {request.filename} initiated. Job ID: {job.id}"
     )
+
+@router.get("/{namespace}/{artifactName}", response_model=ApplicationPackageDetails)
+async def get_application_package_details(
+    namespace: str,
+    artifactName: str,
+    db: Session = Depends(get_db)
+):
+    service = ApplicationPackageService(db)
+    package = service.get_package(namespace, artifactName)
+    if not package:
+        raise HTTPException(status_code=404, detail="Application package not found")
+    
+    return ApplicationPackageDetails.from_db_package(package)
+
+
+
 
 @router.get("/{namespace}/{artifactName}/{version}", response_model=ApplicationPackageDetails)
 async def get_application_package_details(
