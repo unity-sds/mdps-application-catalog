@@ -6,7 +6,6 @@ from app.models.application_package_db import ApplicationPackageVersion as apv
 
 
 class ApplicationPackageVersion(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     artifactVersion: str
     cwlId: Optional[str] = None

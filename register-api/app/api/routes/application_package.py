@@ -96,7 +96,7 @@ async def get_application_package_details(
     if not package:
         raise HTTPException(status_code=404, detail="Application package not found")
     
-    return ApplicationPackageDetails.from_db_package(package)
+    return ApplicationPackageDetails.from_db_package_with_versions(package)
 
 
 

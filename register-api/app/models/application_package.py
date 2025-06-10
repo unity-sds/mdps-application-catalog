@@ -7,7 +7,6 @@ from app.models.application_package_db import ApplicationPackage
 from app.models.application_package_version import ApplicationPackageVersion
 
 class ApplicationPackageDetails(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
     namespace: str
     artifactName: str
     dateCreated: datetime
@@ -19,6 +18,21 @@ class ApplicationPackageDetails(BaseModel):
 
     @classmethod
     def from_db_package(cls, package: ApplicationPackage) -> 'ApplicationPackageDetails':
+        """
+        Create an ApplicationPackageDetails from a database ApplicationPackage model
+        """
+        return cls(
+            namespace=package.namespace,
+            artifactName=package.artifact_name,
+            dateCreated=package.created_at,
+            dateUpdated=package.updated_at or package.created_at,
+            description=package.description,
+            sourceRepository=package.source_repository,
+            dockerImage=package.docker_image
+        )
+    
+    @classmethod
+    def from_db_package_with_versions(cls, package: ApplicationPackage) -> 'ApplicationPackageDetails':
         """
         Create an ApplicationPackageDetails from a database ApplicationPackage model
         """

@@ -15,7 +15,7 @@ application_package_tags = Table(
 )
 
 class ApplicationPackage(Base):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     __tablename__ = "application_packages"
 
     id = Column(String, primary_key=True, index=True)
@@ -31,7 +31,7 @@ class ApplicationPackage(Base):
     job_id = Column(String, ForeignKey('jobs.id'))
     job = relationship("Job", back_populates="application_package")
     tags = relationship("Tag", secondary=application_package_tags, back_populates="application_packages")
-    versions = relationship("ApplicationPackageVersion", lazy="selectin", back_populates="application_package", cascade="all, delete-orphan")
+    versions = relationship("ApplicationPackageVersion", back_populates="application_package", cascade="all, delete-orphan")
 
 class ApplicationPackageVersion(Base):
     model_config = ConfigDict(arbitrary_types_allowed=True)
