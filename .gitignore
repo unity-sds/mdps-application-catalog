@@ -5,3 +5,4 @@ register-api/storage
 **/*.pyc
 **/.terraform*
 **/terraform.*
+**/invenio-values*

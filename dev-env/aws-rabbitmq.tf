@@ -42,3 +42,8 @@ resource "aws_mq_configuration" "rabbitmq_broker_config" {
         consumer_timeout = 1800000
     DATA
 }
+
+output "rabbitmq_hostname" {
+    value = aws_mq_broker.rabbitmq_broker.instances[0].endpoints[0]
+  #value = aws_mq_broker.rabbitmq_broker.broker_instances[0].endpoints[0]
+}

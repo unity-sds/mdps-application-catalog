@@ -38,6 +38,7 @@ resource "aws_db_subnet_group" "catalog" {
 
 # db instance postgres
 resource "aws_db_instance" "catalog" {
+    db_name = "invenio"
     identifier = "catalog"
     instance_class = "db.t3.micro"
     storage_type = "gp2"
@@ -72,4 +73,8 @@ resource "aws_db_parameter_group" "catalog" {
         # name = "log"
         # value = "1"
     # }
+}
+
+output "pg_endpoint" {
+    value = aws_db_instance.catalog.endpoint
 }

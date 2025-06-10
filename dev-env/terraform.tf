@@ -2,19 +2,19 @@ terraform {
     required_providers {
         aws = {
             source  = "hashicorp/aws"
-            version = ">= 5.79.0"
+            version = ">= 5.0.0"
         }
-        helm = {
-            source = "hashicorp/helm"
-            version = "~> 2.12"
-        }
-        kubernetes = {
-            source = "hashicorp/kubernetes"
-            version = "~> 2.24"
-        }
+        # helm = {
+        #     source = "hashicorp/helm"
+        #     version = "~> 2.12"
+        # }
+        # kubernetes = {
+        #     source = "hashicorp/kubernetes"
+        #     version = ">= 2.0.0"
+        # }
     }
 
-    required_version = ">= 1.2.0"
+    #required_version = ">= 1.2.0"
 }
 
 # configures a specified provider
@@ -28,25 +28,26 @@ provider "helm" {
     kubernetes {
         host = module.eks.cluster_endpoint
         cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-        token = data.aws_eks_cluster_auth.cluster.token
-        # exec {
-        #     api_version = "client.authentication.k8s.io/v1beta1"
-        #     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-        #     command     = "aws"
-        # }
-        # config_path = "~/.kube/config"
+        #token = data.aws_eks_cluster_auth.cluster.token
+        exec {
+            api_version = "client.authentication.k8s.io/v1beta1"
+            args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+            command     = "aws"
+        }
+        config_path = "~/.kube/config"
     }
 }
 
 provider "kubernetes" {
     host = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    token = data.aws_eks_cluster_auth.cluster.token
-    # exec {
-    #     api_version = "client.authentication.k8s.io/v1beta1"
-    #     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    #     command     = "aws"
-    # }
+    #token = data.aws_eks_cluster_auth.cluster.token
+    exec {
+        api_version = "client.authentication.k8s.io/v1beta1"
+        args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+        command     = "aws"
+    }
+    config_path = "~/.kube/config"
 }
 
 data "aws_eks_cluster_auth" "cluster" {
