@@ -564,99 +564,6 @@
         ],
         "title": "ApplicationPackageDetails"
       },
-      "ApplicationPackageSummary": {
-        "properties": {
-          "namespace": {
-            "type": "string",
-            "title": "Namespace"
-          },
-          "artifactName": {
-            "type": "string",
-            "title": "Artifactname"
-          },
-          "artifactVersion": {
-            "type": "string",
-            "title": "Artifactversion"
-          },
-          "dateCreated": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Datecreated"
-          },
-          "published": {
-            "type": "boolean",
-            "title": "Published"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
-          "publishedDate": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Publisheddate"
-          },
-          "uploader": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Uploader"
-          },
-          "tags": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Tags"
-          },
-          "detailsUrl": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Detailsurl"
-          }
-        },
-        "type": "object",
-        "required": [
-          "namespace",
-          "artifactName",
-          "artifactVersion",
-          "dateCreated",
-          "published"
-        ],
-        "title": "ApplicationPackageSummary"
-      },
       "Body_register_application_package__namespace__ogc_application_package_post": {
         "properties": {
           "request": {
@@ -725,6 +632,14 @@
             "type": "string",
             "title": "Namespace"
           },
+          "artifact_name": {
+            "type": "string",
+            "title": "Artifact Name"
+          },
+          "artifact_version": {
+            "type": "string",
+            "title": "Artifact Version"
+          },
           "filename": {
             "type": "string",
             "title": "Filename"
@@ -789,6 +704,8 @@
           "jobId",
           "status",
           "namespace",
+          "artifact_name",
+          "artifact_version",
           "filename",
           "createdAt",
           "updatedAt"
@@ -824,7 +741,7 @@
           },
           "packages": {
             "items": {
-              "$ref": "#/components/schemas/ApplicationPackageSummary"
+              "$ref": "#/components/schemas/ApplicationPackageDetails"
             },
             "type": "array",
             "title": "Packages"

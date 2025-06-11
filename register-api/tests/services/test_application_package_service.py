@@ -30,6 +30,9 @@ def mock_cwl_tool():
     tool.requirements = []
     return tool
 
+def test_image_pull(service):
+    service.pull_image("ghcr.io/maap-project/sardem-sarsen:mlucas_nasa-ogc")
+
 def test_validate_package(service):
     with patch('ap_validator.app_package.AppPackage') as mock_app_package:
         mock_app_package.from_url.return_value.check_all.return_value = {'valid': True, 'issues': []}
