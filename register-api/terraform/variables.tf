@@ -75,3 +75,14 @@ variable "tags" {
     Project     = "mdps-artifact-catalog"
   }
 } 
+
+variable "user_pool_id" {
+  description = "id of the auth userpool or realm"
+  type        = string
+}
+
+variable "user_pool_id" {
+  description = "id of jwt client"
+  type        = string
+}
+

@@ -176,7 +176,27 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "ACCESS_TOKEN_EXPIRE_MINUTES"
           value = "30"
-        }         
+        },
+        {
+          name  = "JWT_AUTH_TYPE"
+          value = "COGNITO"
+        },
+        {
+          name  = "JWT_VALIDATION_URL"
+          value = "https://cognito-idp.us-west-2.amazonaws.com/${var.user_pool_id}/.well-known/jwks.json"
+        },
+        {
+          name  = "JWT_ISSUER_URL"
+          value = "https://cognito-idp.us-west-2.amazonaws.com/${var.user_pool_id}"
+        },
+        {
+          name  = "JWT_CLIENT_ID"
+          value = var.client_id
+        },
+        {
+          name  = "JWT_GROUPS_KEY"
+          value = "cognito:groups"
+        }              
       ]
       logConfiguration = {
         logDriver = "awslogs"
