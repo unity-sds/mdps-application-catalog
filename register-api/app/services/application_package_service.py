@@ -150,6 +150,13 @@ class ApplicationPackageService:
         self.db.commit()
         return package, True
 
+    def get_application_package_version(self,application_package: ApplicationPackage, artifact_version: str):
+        app_package_version = self.db.query(ApplicationPackageVersion).filter(
+            ApplicationPackageVersion.application_package_id ==application_package.id,
+            ApplicationPackageVersion.artifact_version == artifact_version
+        ).first()
+        return app_package_version
+
     def update_or_create_version( self, 
                 application_package: ApplicationPackage,
                 artifact_version: str,
@@ -162,15 +169,12 @@ class ApplicationPackageService:
 
             ) -> Tuple[ApplicationPackageVersion, bool]:
         """Get existing package or create a new one."""
-        app_package_version = self.db.query(ApplicationPackageVersion).filter(
-            ApplicationPackageVersion.application_package_id ==application_package.id,
-            ApplicationPackageVersion.artifact_version == artifact_version
-        ).first()
+        app_package_version = self.get_application_package_version(application_package,artifact_version )
 
         if app_package_version:
             # TODO, less generic exception
             if app_package_version.published:
-                raise Exception("Application version already exists and has been published!")
+                raise ValueError("Application version already exists and has been published!")
 
             logger.error("App Package Version already exists")
             if app_package_version.published:
@@ -254,8 +258,8 @@ class ApplicationPackageService:
                     cwl_version=None,
                     uploader=None,
                 )
-            except Exception as e:
-                self._handle_version_exists(job_id, package, package_version )
+            except ValueError as e:
+                self._handle_version_exists(job_id, package, artifact_version )
                 return
 
             self._handle_successful_processing(job_id)
@@ -278,12 +282,12 @@ class ApplicationPackageService:
         return cwl_meta.__getattribute__('s:softwareVersion')
 
 
-    def _handle_version_exists(self, job_id: str, package: ApplicationPackage, package_version: ApplicationPackageVersion) -> None:
+    def _handle_version_exists(self, job_id: str, package: ApplicationPackage, artifact_version: str) -> None:
         """Handle case where package version already exists."""
         self.update_job_status(
             job_id,
             JobStatus.FAILED,
-            f"A Published Application package version with this namespace, name, and version already exists. {package.namespace}/{package.artifact_name}/{package_version.artifact_version}",
+            f"A Published Application package version with this namespace, name, and version already exists. {package.namespace}/{package.artifact_name}/{artifact_version}",
             100
         )
 
@@ -321,22 +325,17 @@ class ApplicationPackageService:
 
 
     #TODO - needs to update the _version_, not the _package_
-    def update_package_publish_status(
+    def update_package_version_publish_status(
         self, 
-        namespace: str, 
-        artifact_name: str, 
-        version: str, 
+        artifact_version: ApplicationPackageVersion, 
         published: bool
     ) -> ApplicationPackage:
         """Update package publish status."""
-        package = self.get_package(namespace, artifact_name)
-        if not package:
-            raise ValueError("Application package not found")
         
-        package.published = published
-        package.published_date = datetime.now() if published else None
+        artifact_version.published = published
+        artifact_version.published_date = datetime.now() if published else None
         self.db.commit()
-        return package 
+        return artifact_version 
     
 
     #             new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)

@@ -125,8 +125,18 @@ async def publish_application_package(
     db: Session = Depends(get_db)
 ):
     service = ApplicationPackageService(db)
+    
+
     try:
-        package = service.update_package_publish_status(namespace, artifactName, version, True)
+        package = service.get_package(namespace, artifactName)
+        if not package:
+            raise ValueError("Application package not found")
+
+        package_version = service.get_application_package_version(package, version)
+        if not package_version:
+            raise ValueError("Application package version not found")
+        
+        package = service.update_package_version_publish_status(package_version, True)
         return PublishResponse(
             namespace=namespace,
             artifactName=artifactName,
