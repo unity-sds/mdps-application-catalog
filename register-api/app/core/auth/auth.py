@@ -14,3 +14,5 @@ def get_authorizer():
         return ky_auth
     elif settings.JWT_AUTH_TYPE == "NONE":
         return no_auth
+    else:
+        raise Exception("Authorization has not bet configured for this web server!")

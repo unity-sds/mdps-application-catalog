@@ -109,7 +109,7 @@ async def get_application_package_details(
     db: Session = Depends(get_db)
 ):
     service = ApplicationPackageService(db)
-    package = service.get_package(namespace, artifactName, version)
+    package = service.get_package(namespace, artifactName)
     
     if not package:
         raise HTTPException(status_code=404, detail="Application package not found")
