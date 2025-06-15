@@ -6,6 +6,7 @@ resource "helm_release" "invenio" {
     repository  = "https://inveniosoftware.github.io/helm-invenio/"
     version     = "0.7.0"
     chart       = "invenio"
+    timeout     = 900
 
     namespace = var.namespace
     cleanup_on_fail = true
