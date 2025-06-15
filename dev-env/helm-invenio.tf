@@ -20,7 +20,7 @@ resource "helm_release" "invenio" {
         
         rmq_username = var.rabbit_mq_username
         rmq_password = var.rabbit_mq_password
-        rmq_hostname = aws_mq_broker.rabbitmq_broker.instances[0].endpoints[0]
+        rmq_hostname = regex("^amqps://([^:]+)", aws_mq_broker.rabbitmq_broker.instances[0].endpoints[0])[0]
         rmq_port = 5671
         rmq_protocol = "AMQPS"
         rmq_vhost = "/"

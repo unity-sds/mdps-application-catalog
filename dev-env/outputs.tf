@@ -4,6 +4,11 @@ output "vpc_id" {
     value = data.aws_vpc.selected.id
     sensitive = true
 }
+output "cidr_block" {
+    description = "cidr"
+    value = data.aws_vpc.selected.cidr_block
+    sensitive = true
+}
 # output "public_subnets" {
 #     description = "VPC Public Subnets"
 #     value = data.aws_vpc.selected.public_subnets.ids

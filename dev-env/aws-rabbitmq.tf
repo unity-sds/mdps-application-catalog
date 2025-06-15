@@ -6,7 +6,7 @@ resource "aws_security_group" "rabbitmq_sg" {
 
     ingress {
         from_port   = 5671  # AMQP over TLS
-        to_port     = 5672  # AMQP
+        to_port     = 5671  # AMQP
         protocol    = "tcp"
         cidr_blocks = [data.aws_vpc.selected.cidr_block]  # Or your application CIDR
     }
