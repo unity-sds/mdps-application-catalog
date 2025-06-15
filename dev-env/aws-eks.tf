@@ -48,7 +48,7 @@ module "eks" {
             desired_size = 2
 
             ami_type = "AL2_x86_64"
-            instance_types = ["t3.medium"]
+            instance_types = ["t3.large"] # t3.medium
             capacity_type = "SPOT" #ON_DEMAND for prod?
             block_device_mappings = {
                 device_name = "/dev/xvda"

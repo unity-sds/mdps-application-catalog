@@ -1,13 +1,14 @@
 resource "helm_release" "ingress-nginx" {
     name = "ingress-nginx"
-    namespace = "ingress"
-    create_namespace = true
     chart = "ingress-nginx"
     version = "4.12.3"
     repository = "https://kubernetes.github.io/ingress-nginx"
-    
-    depends_on = [module.eks]
+
+    namespace = "ingress-nginx"
+    create_namespace = true
+
     values = [file("${path.module}/nginx-values.yaml")]
+    depends_on = [module.eks]
 }
 
 data "kubernetes_service" "ingress-nginx" {

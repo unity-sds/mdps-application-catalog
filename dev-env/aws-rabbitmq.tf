@@ -1,5 +1,31 @@
 # aws mq - aws mq instance with rabbitmq as the engine
 
+resource "aws_security_group" "rabbitmq_sg" {
+    name = "rabbitmq-sg"
+    vpc_id = data.aws_vpc.selected.id
+
+    ingress {
+        from_port   = 5671  # AMQP over TLS
+        to_port     = 5672  # AMQP
+        protocol    = "tcp"
+        cidr_blocks = [data.aws_vpc.selected.cidr_block]  # Or your application CIDR
+    }
+
+    ingress {
+        from_port   = 15672  # RabbitMQ Web UI
+        to_port     = 15672
+        protocol    = "tcp"
+        cidr_blocks = [data.aws_vpc.selected.cidr_block]  # Be specific for security
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = [data.aws_vpc.selected.cidr_block]
+    }
+}
+
 # aws mq broker
 resource "aws_mq_broker" "rabbitmq_broker" {
     broker_name = "rabbitmq_broker"
@@ -8,7 +34,7 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     host_instance_type = "mq.t3.micro"
     deployment_mode = "SINGLE_INSTANCE"
     subnet_ids = [data.aws_subnets.public.ids[0]]
-    security_groups = [aws_security_group.rds_sg.id]
+    security_groups = [aws_security_group.rabbitmq_sg.id]
     publicly_accessible =  false
     configuration {
         id = aws_mq_configuration.rabbitmq_broker_config.id
@@ -45,5 +71,4 @@ resource "aws_mq_configuration" "rabbitmq_broker_config" {
 
 output "rabbitmq_hostname" {
     value = aws_mq_broker.rabbitmq_broker.instances[0].endpoints[0]
-  #value = aws_mq_broker.rabbitmq_broker.broker_instances[0].endpoints[0]
 }

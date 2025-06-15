@@ -52,3 +52,10 @@ variable "rabbit_mq_password" {
     sensitive   = true
     default = "inveniorabbitpq"
 }
+
+# COMMON
+variable "namespace" {
+    type = string
+    description = "namespace for app and ingress"
+    default = "app-catalog-dev"
+}

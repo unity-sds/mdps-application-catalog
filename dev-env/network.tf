@@ -61,3 +61,7 @@ data "aws_subnets" "private" {
 output "private_subnets" {
     value = data.aws_subnets.private.ids
 }
+
+output "vpc_cidr_block" {
+    value = data.aws_vpc.selected.cidr_block
+}
