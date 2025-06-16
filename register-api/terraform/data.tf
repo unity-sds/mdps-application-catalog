@@ -31,3 +31,8 @@ data "aws_subnets" "private_subnets" {
     values = ["*Priv*"]
   }
 }
+
+data "aws_acm_certificate" "issued" {
+  domain   = var.cert_domain
+  statuses = ["ISSUED"]
+}

@@ -1,4 +1,10 @@
 terraform {
+  backend "s3" {
+    bucket               = "mdps-sit-artifact-catalog"
+    key                  = "terraform/terraform.tfstate"
+    region               = "us-west-2"
+    encrypt              = true
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -28,7 +34,7 @@ resource "random_password" "db" {
 }
 
 resource "aws_secretsmanager_secret" "db" {
-  name                    = "mdps-artficat-catalog-db-secret"
+  name                    = "mdps-artficat-catalog-db-scrt"
   recovery_window_in_days = 0
 }
 
@@ -113,6 +119,14 @@ resource "aws_security_group_rule" "app-catalog-efs" {
   cidr_blocks       = [data.aws_vpc.application_vpc.cidr_block] # VPC CIDR to allow entire VPC. Adjust as necessary.
 }
 
+resource "aws_security_group_rule" "app-catalog-efs-from-ecs" {
+  type              = "ingress"
+  from_port         = 2049
+  to_port           = 2049
+  protocol          = "tcp"
+  security_group_id = aws_security_group.app-catalog-efs.id
+  source_security_group_id       = aws_security_group.ecs_tasks.id # VPC CIDR to allow entire VPC. Adjust as necessary.
+}
 
 
 # ECS Cluster
@@ -271,8 +285,10 @@ resource "aws_lb_target_group" "app" {
 
 resource "aws_lb_listener" "app" {
   load_balancer_arn = aws_lb.app.arn
-  port              = 8343
-  protocol          = "HTTP"
+  port              = 8443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.issued.arn
 
   default_action {
     type             = "forward"
@@ -287,8 +303,8 @@ resource "aws_security_group" "alb" {
   vpc_id      = data.aws_vpc.application_vpc.id
 
   ingress {
-    from_port   = 8343
-    to_port     = 8343
+    from_port   = 8443
+    to_port     = 8443
     protocol    = "tcp"
     cidr_blocks = ["128.149.0.0/16", "137.78.0.0/16", "137.79.0.0/16"]
   }

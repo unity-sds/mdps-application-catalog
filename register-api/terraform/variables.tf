@@ -81,8 +81,13 @@ variable "user_pool_id" {
   type        = string
 }
 
-variable "user_pool_id" {
+variable "client_id" {
   description = "id of jwt client"
   type        = string
+}
+
+variable "cert_domain" {
+  description = "domain of AWS Cert to use for ALB"
+  type = string
 }
 
