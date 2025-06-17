@@ -1,0 +1,77 @@
+- id: ogc-application-package
+  icon: cubes
+  props:
+    csl: package
+    subtype: ''
+    type: ogc-application-package
+    marc21_type: ogc-application-package
+    marc21_subtype: ''
+  title:
+    en: OGC Application Package
+  tags:
+    - depositable
+- id: ancillary-data
+  icon: table
+  props:
+    csl: data
+    subtype: ''
+    type: ancillary-data
+    marc21_type: ancillary-data
+    marc21_subtype: ''
+  title:
+    en: Ancillary Data
+  tags:
+    - depositable
+- id: auxilliary-data
+  icon: table
+  props:
+    csl: data
+    subtype: ''
+    type: auxilliary-data
+    marc21_type: auxilliary-data
+    marc21_subtype: ''
+  title:
+    en: Auxilliary Data
+  tags:
+    - depositable
+- id: shell-script
+  icon: terminal
+  props:
+    csl: script
+    subtype: ''
+    type: shell-script
+    marc21_type: shell-script
+    marc21_subtype: ''
+  title:
+    en: Shell Script
+  tags:
+    - depositable
+- id: notebook
+  icon: book
+  props:
+    csl: package
+    subtype: ''
+    type: notebook
+    marc21_type: notebook
+    marc21_subtype: ''
+  title:
+    en: Notebook
+  tags:
+    - depositable
+- id: workflow
+  icon: code fork
+  props:
+    csl: software
+    openaire_resourceType: ''
+    openaire_type: workflow
+    eurepo: info:eu-repo/semantics/other
+    schema.org: https://schema.org/CreativeWork
+    subtype: ''
+    type: workflow
+    marc21_type: workflow
+    marc21_subtype: ''
+  title:
+    en: Workflow
+  tags:
+    - depositable
+    - linkable
