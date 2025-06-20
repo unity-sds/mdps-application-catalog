@@ -6,7 +6,7 @@ resource "helm_release" "invenio" {
     repository  = "https://inveniosoftware.github.io/helm-invenio/"
     version     = "0.7.0"
     chart       = "invenio"
-    timeout     = 900
+    timeout     = 450
 
     namespace = var.namespace
     cleanup_on_fail = true
@@ -17,7 +17,8 @@ resource "helm_release" "invenio" {
         pg_username = aws_db_instance.catalog.username
         pg_password = aws_db_instance.catalog.password
         pg_port = aws_db_instance.catalog.port
-        pg_endpoint = aws_db_instance.catalog.endpoint
+        pg_host = aws_db_instance.catalog.address
+        # "postgresql+psycopg2://${aws_db_instance.catalog.username}:${aws_db_instance.catalog.password}@${aws_db_instance.catalog.address}:${aws_db_instance.catalog.port}/${aws_db_instance.catalog.db_name}"
         
         rmq_username = var.rabbit_mq_username
         rmq_password = var.rabbit_mq_password
@@ -29,6 +30,12 @@ resource "helm_release" "invenio" {
         invenio_hostname = data.kubernetes_service.ingress-nginx.status[0].load_balancer[0].ingress[0].hostname
         
         redis_hostname = aws_elasticache_replication_group.redis.primary_endpoint_address
+
+        opensearch_hostname = aws_opensearch_domain.invenio_opensearch.endpoint
+        opensearch_port = 443
+        opensearch_scheme = "https"
+        opensearch_username = var.os_username
+        opensearch_password = var.os_password
     })]
     depends_on = [
         data.aws_vpc.selected, 
@@ -36,6 +43,11 @@ resource "helm_release" "invenio" {
         aws_mq_broker.rabbitmq_broker, 
         aws_db_instance.catalog, 
         helm_release.ingress-nginx,
-        aws_elasticache_replication_group.redis
+        aws_elasticache_replication_group.redis,
+        aws_opensearch_domain.invenio_opensearch
     ]
+}
+
+output "output_opensearch_hostname" {
+    value = format("%s%s:%s", "https://", aws_opensearch_domain.invenio_opensearch.endpoint, 443)
 }

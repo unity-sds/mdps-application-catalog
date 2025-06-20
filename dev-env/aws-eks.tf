@@ -49,6 +49,7 @@ module "eks" {
 
             ami_type = "AL2_x86_64"
             instance_types = ["t3.large"] # t3.medium
+            subnet_ids = data.aws_subnets.public.ids
             capacity_type = "SPOT" #ON_DEMAND for prod?
             block_device_mappings = {
                 device_name = "/dev/xvda"
@@ -69,4 +70,12 @@ module "eks" {
     }
 
     depends_on = [data.aws_vpc.selected]
+}
+
+output "eks_role_arn" {
+    value = module.eks.eks_managed_node_groups["invenio"].iam_role_arn
+}
+
+output "cluster_iam_role_arn" {
+    value = module.eks.cluster_iam_role_arn
 }

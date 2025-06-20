@@ -5,6 +5,17 @@ variable "vpc_id" {
     sensitive = true
 }
 
+# AWS OpenSearch
+variable os_username {
+    type = string
+    sensitive = true
+}
+
+variable os_password {
+    type = string
+    sensitive = true
+}
+
 # AWS EKS
 variable "account_id" {
     type = string
