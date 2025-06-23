@@ -7,7 +7,9 @@ Welcome to your InvenioRDM instance.
 Run the following commands in order to start your new InvenioRDM instance:
 
 ```console
-invenio-cli containers start --lock --build --setup
+invenio-cli install
+invenio-cli services setup
+invenio-cli run
 ```
 
 The above command first builds the application docker image and afterwards
@@ -20,6 +22,20 @@ Once running, visit https://127.0.0.1 in your browser.
 
 **Note**: The server is using a self-signed SSL certificate, so your browser
 will issue a warning that you will have to by-pass.
+
+
+## User Setup
+
+After starting up the server, add yourself as a user:
+
+```console
+invenio users create 'awesome.user@gmail.com' --password $USER_PASSWORD --active --confirm
+
+# And give yourself admin access
+invenio access allow administration-access user 'awesome.user@gmail.com'
+
+```
+
 
 ## Overview
 

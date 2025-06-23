@@ -23,6 +23,7 @@ from app.models.cwl import CWLUploadRequest
 from app.models.publish import PublishResponse
 
 from ap_validator.app_package import AppPackage
+from app.services import service_factory
 from app.services.application_package_service import ApplicationPackageService
 from app.services.invenio_application_package_service import ApplicationPackageService as InvenioApplicationPackageService
 
@@ -44,7 +45,7 @@ async def register_application_package(
     db: Session = Depends(get_db)
 ):
     
-    service = InvenioApplicationPackageService(db, token.credentials)
+    service = service_factory.get_application_pacakge_service(db, token.credentials)
 
     jobId = str(uuid.uuid4())
 
@@ -91,15 +92,15 @@ async def register_application_package(
 async def get_application_package_details(
     namespace: str,
     artifactName: str,
+    token: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 
 ):
-    service = ApplicationPackageService(db)
+    service = service_factory.get_application_pacakge_service(db, token.credentials)    
     package = service.get_package(namespace, artifactName)
     if not package:
         raise HTTPException(status_code=404, detail="Application package not found")
-    
-    return ApplicationPackageDetails.from_db_package_with_versions(package)
+    return package
 
 
 
@@ -113,19 +114,15 @@ async def get_application_package_details(
     credentials: JWTAuthorizer = Depends(authorizer),
     db: Session = Depends(get_db)
 ):
-    # #service = ApplicationPackageService(db)
-    # package = service.get_package(namespace, artifactName)
-    
-    # if not package:
-    #     raise HTTPException(status_code=404, detail="Application package not found")
-    
-    # return ApplicationPackageDetails.from_rdm_package(package)
-    service = InvenioApplicationPackageService(db, token.credentials)
+    service = service_factory.get_application_pacakge_service(db, token.credentials)
     package = service.get_package(namespace, artifactName)
     
     if not package:
         raise HTTPException(status_code=404, detail="Application package not found")
     
+    apv = service.get_application_package_version(package, version)
+    #apv.application_package = package
+    package.versions.append(apv)
     return package
 
 @router.post("/{namespace}/{artifactName}/{version}/publish", response_model=PublishResponse)
@@ -133,10 +130,10 @@ async def publish_application_package(
     namespace: str,
     artifactName: str,
     version: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    token: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    service = ApplicationPackageService(db)
+    service = service_factory.get_application_pacakge_service(db, token.credentials)
     
 
     try:
@@ -164,10 +161,10 @@ async def unpublish_application_package(
     namespace: str,
     artifactName: str,
     version: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    token: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    service = ApplicationPackageService(db)
+    service = service_factory.get_application_pacakge_service(db, token.credentials)
     try:
         package = service.update_package_publish_status(namespace, artifactName, version, False)
         return PublishResponse(

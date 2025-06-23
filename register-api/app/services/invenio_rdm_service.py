@@ -102,6 +102,7 @@ class IvenioRDMService:
             return None
         else:
             app_package_version = ApplicationPackageVersion.from_rdm_package_version(community_items[0])
+            return app_package_version
 
     def add_package_version(self, app_package_version: ApplicationPackageVersion):
         # Setup the requests
