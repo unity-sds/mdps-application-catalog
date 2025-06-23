@@ -1,14 +1,16 @@
 from typing import Optional, Tuple
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import cwl_utils
 import cwl_utils.parser
 from sqlalchemy.orm import Session
 from fastapi.logger import logger
 from types import SimpleNamespace
 
-from app.models.application_package_db import ApplicationPackage, ApplicationPackageVersion
+from app.models.application_package import ApplicationPackageDetails
+from app.models.application_package_version import ApplicationPackageVersion
+
 from app.models.job import Job, JobStatus
 from app.core.config import settings
 from ap_validator.app_package import AppPackage
@@ -16,10 +18,16 @@ import schema_salad
 import shutil
 import yaml
 
+from app.services.invenio_rdm_service import IvenioRDMService
+
 
 class ApplicationPackageService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, token: str):
         self.db = db
+        self.token = token
+        self.invenio_url = settings.RDM_URL
+        
+        logger.error("Initialized RDM Service with " + self.invenio_url )
 
     def validate_package(self, file_path: str) -> bool:
         """Validate the application package using the validator."""
@@ -127,38 +135,25 @@ class ApplicationPackageService:
         namespace: str, 
         artifact_name: str, 
         job_id: str
-    ) -> Tuple[ApplicationPackage, bool]:
-        """Get existing package or create a new one."""
-        app_package = self.db.query(ApplicationPackage).filter(
-            ApplicationPackage.namespace == namespace,
-            ApplicationPackage.artifact_name == artifact_name
-        ).first()
-        # we now have the application pacakge. We may need to create this version as well?
-
+    ) -> Tuple[ApplicationPackageDetails, bool]:
+        
+        rdm_service = IvenioRDMService(self.invenio_url, self.token)
+        app_package = rdm_service.get_package(namespace, artifact_name)
         if app_package:
-            app_package.job_id = job_id
-            self.db.commit()
             return app_package, False
+        
 
-        package = ApplicationPackage(
-            id=str(uuid.uuid4()),
-            namespace=namespace,
-            artifact_name=artifact_name,
-            job_id=job_id
-        )
-        self.db.add(package)
-        self.db.commit()
-        return package, True
+        # Not saved until we create the version as well.
+        return ApplicationPackageDetails(namespace=namespace, artifactName=artifact_name, dateUpdated=datetime.now(timezone.utc).isoformat(), dateCreated=datetime.now(timezone.utc).isoformat()), True
+    
 
-    def get_application_package_version(self,application_package: ApplicationPackage, artifact_version: str):
-        app_package_version = self.db.query(ApplicationPackageVersion).filter(
-            ApplicationPackageVersion.application_package_id ==application_package.id,
-            ApplicationPackageVersion.artifact_version == artifact_version
-        ).first()
-        return app_package_version
+    def get_application_package_version(self,application_package: ApplicationPackageDetails, artifact_version: str):
+        rdm_service = IvenioRDMService(self.invenio_url, self.token)
+        version = rdm_service.get_package_version(application_package.namespace, application_package.artifactName, artifact_version)
+        return version
 
     def update_or_create_version( self, 
-                application_package: ApplicationPackage,
+                application_package: ApplicationPackageDetails,
                 artifact_version: str,
                 cwl_id: str,
                 cwl_url: str ,
@@ -168,6 +163,7 @@ class ApplicationPackageService:
                 uploader:str = None,
 
             ) -> Tuple[ApplicationPackageVersion, bool]:
+        
         """Get existing package or create a new one."""
         app_package_version = self.get_application_package_version(application_package,artifact_version )
 
@@ -176,29 +172,32 @@ class ApplicationPackageService:
             if app_package_version.published:
                 raise ValueError("Application version already exists and has been published!")
 
-            logger.error("App Package Version already exists")
-            if app_package_version.published:
-                return app_package_version, False
-            app_package_version.cwl_id = cwl_id
-            app_package_version.cwl_url = cwl_url
-            app_package_version.published = published
-            app_package_version.cwl_version = cwl_version
-            app_package_version.uploader = uploader
-            self.db.commit()
+            # logger.error("App Package Version already exists")
+            # if app_package_version.published:
+            #     return app_package_version, False
+            
+            #TODO Update RDM with the new file
+
+            # app_package_version.cwl_id = cwl_id
+            # app_package_version.cwl_url = cwl_url
+            # app_package_version.published = published
+            # app_package_version.cwl_version = cwl_version
+            # app_package_version.uploader = uploader
+            # self.db.commit()
             return app_package_version, True
-        else:
+        else:   
             app_package_version = ApplicationPackageVersion(
-                id=str(uuid.uuid4()),
                 artifact_version = artifact_version,
+                app_package =application_package,
                 cwl_id = cwl_id,
                 cwl_url = cwl_url,
                 published = published,
                 cwl_version = cwl_version,
-                uploader = uploader,
-                application_package_id = application_package.id
+                uploader = uploader
             )
-        self.db.add(app_package_version)
-        self.db.commit()
+            IvenioRDMService(self.invenio_url, self.token).add_package_version(app_package_version)
+
+
         return app_package_version, True
 
 
@@ -234,9 +233,6 @@ class ApplicationPackageService:
 
             # TODO 
             #new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)
-
-            
-
 
             # Create or update package
             package, created = self.get_or_create_package(
@@ -281,7 +277,7 @@ class ApplicationPackageService:
         return cwl_meta.__getattribute__('s:softwareVersion')
 
 
-    def _handle_version_exists(self, job_id: str, package: ApplicationPackage, artifact_version: str) -> None:
+    def _handle_version_exists(self, job_id: str, package: ApplicationPackageDetails, artifact_version: str) -> None:
         """Handle case where package version already exists."""
         self.update_job_status(
             job_id,
@@ -309,32 +305,29 @@ class ApplicationPackageService:
             f"Error processing application package: {str(error)}"
         )
 
-    def get_package(self, namespace: str, artifact_name: str) -> Optional[ApplicationPackage]:
-        """List application package by namespace, name and version."""
-        return self.db.query(ApplicationPackage).filter(
-            ApplicationPackage.namespace == namespace,
-            ApplicationPackage.artifact_name == artifact_name,
-            #ApplicationPackage.artifact_version == version
-        ).first()
+    def get_package(self, namespace: str, artifact_name: str) -> Optional[ApplicationPackageDetails]:
+        return IvenioRDMService(self.invenio_url, self.token).get_package(namespace=namespace, package_name=artifact_name)
 
-    def list_packages(self, namespace: str, artifact_name: str) -> Optional[list[ApplicationPackage]]:       
-        """Get application package by namespace, name and version."""
-        # TODO add filtering
-        return self.db.query(ApplicationPackage).all()
-
-
-    #TODO - needs to update the _version_, not the _package_
-    def update_package_version_publish_status(
-        self, 
-        artifact_version: ApplicationPackageVersion, 
-        published: bool
-    ) -> ApplicationPackage:
-        """Update package publish status."""
         
-        artifact_version.published = published
-        artifact_version.published_date = datetime.now() if published else None
-        self.db.commit()
-        return artifact_version 
+
+    # def list_packages(self, namespace: str, artifact_name: str) -> Optional[list[ApplicationPackage]]:       
+    #     """Get application package by namespace, name and version."""
+    #     # TODO add filtering
+    #     return self.db.query(ApplicationPackage).all()
+
+
+    # #TODO - needs to update the _version_, not the _package_
+    # def update_package_version_publish_status(
+    #     self, 
+    #     artifact_version: ApplicationPackageVersion, 
+    #     published: bool
+    # ) -> ApplicationPackage:
+    #     """Update package publish status."""
+        
+    #     artifact_version.published = published
+    #     artifact_version.published_date = datetime.now() if published else None
+    #     self.db.commit()
+    #     return artifact_version 
     
 
     #             new_image_path: str = self.pull_image(namespace, artifact_name, artifact_version, docker_image)

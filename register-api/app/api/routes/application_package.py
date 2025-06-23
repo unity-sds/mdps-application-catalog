@@ -24,6 +24,7 @@ from app.models.publish import PublishResponse
 
 from ap_validator.app_package import AppPackage
 from app.services.application_package_service import ApplicationPackageService
+from app.services.invenio_application_package_service import ApplicationPackageService as InvenioApplicationPackageService
 
 import app.core.auth.auth as app_auth
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -38,11 +39,12 @@ async def register_application_package(
     namespace: str,
     request: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks(),
+    token: HTTPAuthorizationCredentials = Depends(security),
     credentials: JWTAuthorizer = Depends(authorizer),
     db: Session = Depends(get_db)
 ):
     
-    service = ApplicationPackageService(db)
+    service = InvenioApplicationPackageService(db, token.credentials)
 
     jobId = str(uuid.uuid4())
 
@@ -90,6 +92,7 @@ async def get_application_package_details(
     namespace: str,
     artifactName: str,
     db: Session = Depends(get_db)
+
 ):
     service = ApplicationPackageService(db)
     package = service.get_package(namespace, artifactName)
@@ -106,15 +109,24 @@ async def get_application_package_details(
     namespace: str,
     artifactName: str,
     version: str,
+    token: HTTPAuthorizationCredentials = Depends(security),
+    credentials: JWTAuthorizer = Depends(authorizer),
     db: Session = Depends(get_db)
 ):
-    service = ApplicationPackageService(db)
+    # #service = ApplicationPackageService(db)
+    # package = service.get_package(namespace, artifactName)
+    
+    # if not package:
+    #     raise HTTPException(status_code=404, detail="Application package not found")
+    
+    # return ApplicationPackageDetails.from_rdm_package(package)
+    service = InvenioApplicationPackageService(db, token.credentials)
     package = service.get_package(namespace, artifactName)
     
     if not package:
         raise HTTPException(status_code=404, detail="Application package not found")
     
-    return ApplicationPackageDetails.from_db_package(package)
+    return package
 
 @router.post("/{namespace}/{artifactName}/{version}/publish", response_model=PublishResponse)
 async def publish_application_package(
