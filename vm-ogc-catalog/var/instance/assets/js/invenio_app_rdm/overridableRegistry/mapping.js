@@ -1,1 +1,0 @@
-/Users/lkong/source/repos/mdps-application-catalog/ogc-application-catalog/assets/js/invenio_app_rdm/overridableRegistry/mapping.js
