@@ -170,7 +170,9 @@ class ApplicationPackageService:
         if app_package_version:
             # TODO, less generic exception
             if app_package_version.published:
-                raise ValueError("Application version already exists and has been published!")
+                logger.error(f"{application_package.artifactName}/")
+                if artifact_version != "develop":
+                    raise ValueError("Application version already exists and has been published!")
 
             # logger.error("App Package Version already exists")
             # if app_package_version.published:
@@ -184,18 +186,18 @@ class ApplicationPackageService:
             # app_package_version.cwl_version = cwl_version
             # app_package_version.uploader = uploader
             # self.db.commit()
-            return app_package_version, True
-        else:   
-            app_package_version = ApplicationPackageVersion(
-                artifact_version = artifact_version,
-                app_package =application_package,
-                cwl_id = cwl_id,
-                cwl_url = cwl_url,
-                published = published,
-                cwl_version = cwl_version,
-                uploader = uploader
-            )
-            IvenioRDMService(self.invenio_url, self.token).add_package_version(app_package_version)
+        # return app_package_version, True
+        # else:   
+        app_package_version = ApplicationPackageVersion(
+            artifact_version = artifact_version,
+            app_package =application_package,
+            cwl_id = cwl_id,
+            cwl_url = cwl_url,
+            published = published,
+            cwl_version = cwl_version,
+            uploader = uploader
+        )
+        IvenioRDMService(self.invenio_url, self.token).add_package_version(app_package_version)
 
 
         return app_package_version, True
@@ -282,7 +284,7 @@ class ApplicationPackageService:
         self.update_job_status(
             job_id,
             JobStatus.FAILED,
-            f"A Published Application package version with this namespace, name, and version already exists. {package.namespace}/{package.artifact_name}/{artifact_version}",
+            f"A Published Application package version with this namespace, name, and version already exists. {package.namespace}/{package.artifactName}/{artifact_version}",
             100
         )
 

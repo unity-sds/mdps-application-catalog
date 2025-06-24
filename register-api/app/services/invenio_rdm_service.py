@@ -19,18 +19,18 @@ class IvenioRDMService:
 
     # Uncomment this block if you'd like way too much info on the http requests being made to RDM
 
-    # try:
-    #     import http.client as http_client
-    # except ImportError:
-    #     # Python 2
-    #     import httplib as http_client
-    # http_client.HTTPConnection.debuglevel = 1
-    # # You must initialize logging, otherwise you'll not see debug output.
-    # logging.basicConfig()
-    # logging.getLogger().setLevel(logging.DEBUG)
-    # requests_log = logging.getLogger("requests.packages.urllib3")
-    # requests_log.setLevel(logging.DEBUG)
-    # requests_log.propagate = True
+    try:
+        import http.client as http_client
+    except ImportError:
+        # Python 2
+        import httplib as http_client
+    http_client.HTTPConnection.debuglevel = 1
+    # You must initialize logging, otherwise you'll not see debug output.
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
     
 
     def __init__(self, url: string, token:string):
@@ -81,28 +81,30 @@ class IvenioRDMService:
 
 
     def get_package_version(self, namespace, package_name, package_version=None) -> ApplicationPackageDetails:
-        query_string = f"+metadata.title:\"{package_name}\""
-        
+        query_string = f"metadata.title:\"{package_name}\""
+        params = {}
         # if package version is specified, add it here.
         if package_version:
-            query_string = query_string + f" +metadata.version:\"{package_version}\""
+            query_string = query_string + f" metadata.version:\"{package_version}\""
+            params['allversions']='true'
+            params['size']=100
 
-        params = {
-            "q":query_string
-        }
+        params['q'] = query_string
+            
         headers = {
             "Authorization":f"Bearer {self.token}"
         }
         resp = requests.get(f'{self.invenio_root}/api/communities/{namespace}/records', params=params, headers=headers, verify=False)
         community_items = resp.json()['hits']['hits']
-        if len(community_items) > 1:
-            print("too many packages returned?!")
-            raise ValueError("Multiple Pacakges found with title in given namespace")
-        elif len(community_items) == 0:
+        if  len(community_items) == 0:
             return None
         else:
-            app_package_version = ApplicationPackageVersion.from_rdm_package_version(community_items[0])
-            return app_package_version
+            for item in community_items:
+                if item['metadata']['version'] == package_version:
+                    app_package_version = ApplicationPackageVersion.from_rdm_package_version(item)
+                    return app_package_version
+            
+            return None
 
     def add_package_version(self, app_package_version: ApplicationPackageVersion):
         # Setup the requests
