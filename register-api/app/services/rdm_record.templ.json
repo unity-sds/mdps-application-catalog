@@ -1,0 +1,41 @@
+{
+  "parent": {
+    "review": {
+      "links": {},
+      "type": "community-submission",
+      "title": "",
+      "status": "created",
+      "receiver": {
+        "community": "341b8281-498b-42fc-968c-13c2129e48bd"
+      }
+    },
+    "communities": {}
+  },
+  "access": {
+    "files": "public",
+    "record": "public"
+  },
+  "files": {
+    "enabled": true
+  },
+  "custom_fields": {
+    "mdps:software_repository_url": "https://github.com"
+  },
+  "metadata": {
+    "resource_type": {
+      "id": "ogc-application-package"
+    },
+    "creators": [{
+        "person_or_org": {
+          "family_name": "user",
+          "type": "personal"
+        }
+      }
+    ],
+    "description": "ogc app pack description",
+    "publication_date": "",
+    "title": "",
+    "version": ""
+  },
+  "pids": {}
+}

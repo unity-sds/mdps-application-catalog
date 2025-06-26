@@ -15,6 +15,7 @@ class ApplicationPackageDetails(BaseModel):
     sourceRepository: Optional[str] = None
     dockerImage: Optional[str] = None
     versions: List[ApplicationPackageVersion] = []
+    id: Optional[str] =  None
 
     @classmethod
     def from_db_package(cls, package: ApplicationPackage) -> 'ApplicationPackageDetails':
@@ -45,6 +46,22 @@ class ApplicationPackageDetails(BaseModel):
             sourceRepository=package.source_repository,
             dockerImage=package.docker_image,
             versions=[ApplicationPackageVersion.from_db_package_version(version) for version in package.versions]
+        )
+    
+    @classmethod
+    def from_rdm_package(cls, package) -> 'ApplicationPackageDetails':
+        """
+        create an application pacakge from RDM
+        """
+        return cls(
+            namespace=package['parent']['communities']['entries'][0]['slug'],
+            artifactName=package['metadata']['title'],
+            dateCreated=package['created'],
+            dateUpdated=package['updated'],
+            description=package['metadata']['description'],
+            sourceRepository=package['custom_fields']['mdps:software_repository_url'],
+            dockerImage=None,
+            id=package['id']
         )
 
 class ApplicationPackageCreate(BaseModel):

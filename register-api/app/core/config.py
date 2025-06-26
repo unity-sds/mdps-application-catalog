@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "MDPs Artifact Catalog"
     
     # Security
-    SECRET_KEY: str = "your-secret-key-here"  # Change this in production
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    # SECRET_KEY: str = "your-secret-key-here"  # Change this in production
+    # ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Database Configuration
     DATABASE_URL: Optional[str] = "database_url"
@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     JWT_ISSUER_URL: str = None
     JWT_CLIENT_ID: str = None
     JWT_GROUPS_KEY: str = None
+
+    # RDM
+    RDM_URL: str = None
 
 
     class Config:
