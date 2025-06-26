@@ -5,6 +5,9 @@ subjects:
       name: Fields of Science and Technology
       uri: "http://www.oecd.org/science/inno/38235147.pdf"
       data-file: vocabularies/subjects_oecd_fos.yaml
+resourcetypes:
+  pid-type: rsrct
+  data-file: vocabularies/resource_types.yaml
 # Minimal example vocabularies
 # can be used for quick testing, or a basis for building your own customized vocabularies.
 #names:
@@ -19,4 +22,4 @@ subjects:
 # TODO: Uncomment this if you want to have all affiliations with ROR identifiers.
 # affiliations:
 #   pid-type: aff
-#   data-file: vocabularies/affiliations_ror.yaml
+#   data-file: vocabularies/affiliations_ror.yaml 
