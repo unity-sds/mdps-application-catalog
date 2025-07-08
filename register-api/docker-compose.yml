@@ -15,9 +15,9 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - STORAGE_PATH=/usr/share/storage
-      - SECRET_KEY=${SECRET_KEY}
+#      - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+#      - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - DESTINATION_REGISTRY=${DESTINATION_REGISTRY}
       - PYTHONPATH=/app
       - JWT_AUTH_TYPE=${JWT_AUTH_TYPE}
@@ -25,6 +25,7 @@ services:
       - JWT_ISSUER_URL=${JWT_ISSUER_URL}
       - JWT_GROUPS_KEY=${JWT_GROUPS_KEY}
       - JWT_CLIENT_ID=${JWT_CLIENT_ID}
+      - RDM_URL=${RDM_URL}
     depends_on:
       - db
     #command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -38,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=mdps_catalog
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
 volumes:
   postgres_data: 
