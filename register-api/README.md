@@ -1,5 +1,13 @@
 
 
+## Quick Start (local everything via docker compose)
+
+```
+source env.sample.noauth
+docker-compose build
+docker-compose up
+```
+
 ## Configuration
 
 Most configuration for the service is setup through environment variables.
