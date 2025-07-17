@@ -8,3 +8,4 @@ register-api/storage
 **/.terraform
 register-api/build
 **/__pycache__
+**/celerybeat-schedule.*
