@@ -8,6 +8,10 @@ docker-compose build
 docker-compose up
 ```
 
+# Docker
+Pre-built docker containers are available.
+
+
 ## Configuration
 
 Most configuration for the service is setup through environment variables.
