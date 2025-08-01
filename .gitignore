@@ -6,3 +6,5 @@ register-api/storage
 **/.terraform*
 **/terraform.*
 **/invenio-values*
+**/*.tfvars
+**/locals copy.tf

@@ -1,9 +1,9 @@
 #VPC
-variable "vpc_id" {
-    type = string
-    description = "vpc id"
-    sensitive = true
-}
+# variable "vpc_id" {
+#     type = string
+#     description = "vpc id"
+#     sensitive = true
+# }
 
 # AWS OpenSearch
 variable os_username {
@@ -16,17 +16,21 @@ variable os_password {
     sensitive = true
 }
 
+variable os_port {
+    type = number
+}
+
 # AWS EKS
 variable "account_id" {
     type = string
     description = "aws account id"
     sensitive = true
 }
-variable "ami_id" {
-    type = string
-    description = "ami id"
-    sensitive = true
-}
+# variable "ami_id" {
+#     type = string
+#     description = "ami id"
+#     sensitive = true
+# }
 
 # AWS RDS 
 variable "aws_region" {
@@ -38,7 +42,23 @@ variable "aws_region" {
 variable "aws_profile" {
     type = string
     description = "aws credentials profile"
-    default = "mdps-venue-dev"
+}
+
+# AWS LB Controller
+# variable "irsa_name" {
+#     type = string
+# }
+# variable "irsa_arn" {
+#     type = string
+# }
+variable "aws_cert_arn" {
+    type = string
+}
+
+# AWS Route53
+variable "zone_name" {
+    type = string
+    description = "route53 zone name"
 }
 
 # Postgres
@@ -46,7 +66,6 @@ variable "db_password" {
     type        = string
     description = "db password"
     sensitive   = true
-    default = "inveniopostgres"
 }
 
 # RabbitMQ
@@ -54,19 +73,37 @@ variable "rabbit_mq_username" {
     type        = string
     description = "RabbitMQ Username"
     sensitive   = true
-    default = "inveniorabbitmq"
 }
 
 variable "rabbit_mq_password" {
     type        = string
     description = "RabbitMQ password"
     sensitive   = true
-    default = "inveniorabbitpq"
 }
 
 # COMMON
 variable "namespace" {
     type = string
     description = "namespace for app and ingress"
-    default = "app-catalog-dev"
+}
+# variable "app_hostname" {
+#     type = string
+#     description = "invenio hostname"
+# }
+
+# InvenioRDM
+variable "invenio_init" {
+    type = bool
+    description = "initialize components for invenio - true if first time install"
+    default = false
+}
+
+variable "invenio_hostname" {
+    type = string
+    description = "Invenio Hostname"
+}
+
+variable "chart_path" {
+    type = string
+    description = "path to local invenio chart"
 }

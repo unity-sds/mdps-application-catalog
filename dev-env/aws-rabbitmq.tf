@@ -2,27 +2,27 @@
 
 resource "aws_security_group" "rabbitmq_sg" {
     name = "rabbitmq-sg"
-    vpc_id = data.aws_vpc.selected.id
+    vpc_id = data.aws_ssm_parameter.vpc_id.value
 
     ingress {
         from_port   = 5671  # AMQP over TLS
         to_port     = 5671  # AMQP
         protocol    = "tcp"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]  # Or your application CIDR
+        cidr_blocks = local.private_subnet_cidr_values # Or your application CIDR
     }
 
     ingress {
         from_port   = 15672  # RabbitMQ Web UI
         to_port     = 15672
         protocol    = "tcp"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]  # Be specific for security
+        cidr_blocks = local.private_subnet_cidr_values  # Be specific for security
     }
 
     egress {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 }
 
@@ -33,7 +33,7 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     engine_version = "3.13"
     host_instance_type = "mq.t3.micro"
     deployment_mode = "SINGLE_INSTANCE"
-    subnet_ids = [data.aws_subnets.public.ids[0]]
+    subnet_ids = [local.private_subnet_ids[0]]
     security_groups = [aws_security_group.rabbitmq_sg.id]
     publicly_accessible =  false
     configuration {
@@ -54,7 +54,7 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     
     apply_immediately = true
 
-    depends_on = [data.aws_vpc.selected, aws_security_group.rds_sg]
+    depends_on = [aws_security_group.rds_sg, aws_mq_configuration.rabbitmq_broker_config]
 }
 
 # aws mq config

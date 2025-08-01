@@ -1,32 +1,23 @@
 # Module VPC
 output "vpc_id" {
     description = "VPC Id"
-    value = data.aws_vpc.selected.id
+    value = data.aws_ssm_parameter.vpc_id.value
     sensitive = true
 }
-output "cidr_block" {
-    description = "cidr"
-    value = data.aws_vpc.selected.cidr_block
-    sensitive = true
+output "private_cidr_blocks" {
+    description = "private cidr block"
+    value = local.public_subnet_cidr_values
 }
-# output "public_subnets" {
-#     description = "VPC Public Subnets"
-#     value = data.aws_vpc.selected.public_subnets.ids
-#     sensitive = false
-# }
-# output "private_subnets" {
-#     description = "VPC Private Subnets"
-#     value = data.aws_vpc.selected.private_subnets.ids
-#     sensitive = false
-# }
+output "public_cidr_blocks" {
+    description = "public cidr block"
+    value = local.private_subnet_cidr_values
+}
 
 # Module EKS
-# output "cluster_name" {
-#     value = module.eks.cluster_name
-# }
-# output "kubeconfig" {
-#     value = module.eks.kubeconfig
-# }
+output "cluster_name" {
+    value = module.eks.cluster_name
+}
+
 # output "cluster_endpoint" {
 #     value = module.eks.cluster_endpoint
 # }

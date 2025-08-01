@@ -1,0 +1,25 @@
+{{- if .Capabilities.APIVersions.Has "route.openshift.io/v1/Route" }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: invenio
+  {{- if and .Values.main_route .Values.main_route.annotations }}
+  annotations:
+    {{- range .Values.main_route.annotations }}
+    {{ . }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "invenio.labels" . | nindent 4 }}
+spec:
+  host: {{ include "invenio.hostname" $ }}
+  to:
+    kind: Service
+    name: web
+  port:
+    targetPort: http
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+{{- end }}

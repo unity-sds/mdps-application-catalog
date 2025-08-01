@@ -1,13 +1,13 @@
 resource "aws_security_group" "opensearch_sg" {
     name = "opensearch-sg"
     description = "Allow EKS to talk to OpenSearch"
-    vpc_id = data.aws_vpc.selected.id
+    vpc_id = data.aws_ssm_parameter.vpc_id.value
 
     ingress {
-        from_port = 443
-        to_port = 443
+        from_port = var.os_port
+        to_port = var.os_port
         protocol = "tcp"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]
+        cidr_blocks = local.private_subnet_cidr_values
     }
 
     egress {
@@ -39,7 +39,10 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
     }
 
     vpc_options {
-        subnet_ids = data.aws_subnets.private.ids
+        subnet_ids = [
+            local.private_subnet_ids[0],
+            local.private_subnet_ids[1]
+        ]
         security_group_ids = [aws_security_group.opensearch_sg.id]
     }
 
@@ -75,7 +78,7 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
       "rest.action.multi.allow_explicit_index" = "true"
     }
 
-    depends_on = [ data.aws_vpc.selected, module.eks ]
+    depends_on = [ module.eks ]
 }
 
 output "opensearch_hostname" {

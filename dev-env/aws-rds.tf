@@ -6,7 +6,7 @@
 resource "aws_security_group" "rds_sg" {
     name = "rds_sg"
     description = "PostgresSQL access"
-    vpc_id = data.aws_vpc.selected.id
+    vpc_id = data.aws_ssm_parameter.vpc_id.value
 
     #inbound
     ingress {
@@ -14,7 +14,7 @@ resource "aws_security_group" "rds_sg" {
         from_port = 5432
         to_port = 5432
         protocol = "tcp"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block] #["10.0.0.0/16"]
+        cidr_blocks = local.private_subnet_cidr_values #["10.0.0.0/16"]
     }
 
     #outbound
@@ -22,14 +22,14 @@ resource "aws_security_group" "rds_sg" {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block] #["10.0.0.0/16"]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 }
 
 # subnet group and label
 resource "aws_db_subnet_group" "catalog" {
     name = "catalog"
-    subnet_ids = data.aws_subnets.public.ids
+    subnet_ids = local.private_subnet_ids
 
     tags = {
         Name = "Catalog"

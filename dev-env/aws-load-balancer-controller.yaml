@@ -1,0 +1,9 @@
+serviceAccount:
+  create: false
+  name: ${lb_role_name}
+  annotations:
+    eks.amazonaws.com/role-arn: ${lb_role_arn}
+
+clusterName: ${cluster_name}
+region: ${aws_region}
+vpcId: ${vpc_id}

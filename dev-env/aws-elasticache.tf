@@ -1,25 +1,25 @@
 resource "aws_elasticache_subnet_group" "redis_subnet_group" {
     name = "redis-subnet-group"
-    subnet_ids = data.aws_subnets.public.ids
+    subnet_ids = local.private_subnet_ids
 }
 
 resource "aws_security_group" "redis_sg" {
     name = "redis-sg"
     description = "Allow Redis Access"
-    vpc_id = data.aws_vpc.selected.id
+    vpc_id = data.aws_ssm_parameter.vpc_id.value
 
     ingress {
         from_port = 6379
         to_port = 6379
         protocol = "tcp"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]
+        cidr_blocks = local.private_subnet_cidr_values
     }
 
     egress {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = [data.aws_vpc.selected.cidr_block]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 }
 
@@ -35,8 +35,6 @@ resource "aws_elasticache_replication_group" "redis" {
     parameter_group_name = "default.redis6.x"
     subnet_group_name = aws_elasticache_subnet_group.redis_subnet_group.name
     security_group_ids = [aws_security_group.redis_sg.id]
-
-    depends_on = [data.aws_vpc.selected]
 }
 
 output "redis_endpoint" {
