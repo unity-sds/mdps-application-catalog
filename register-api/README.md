@@ -1,16 +1,14 @@
 
 
-## Quick Start (local everything via docker compose)
+## Quick Start
+
+These commands bring up everything via Docker compose. It does not allow for local development.
 
 ```
 source env.sample.noauth
 docker-compose build
 docker-compose up
 ```
-
-# Docker
-Pre-built docker containers are available.
-
 
 ## Configuration
 
@@ -75,23 +73,72 @@ token = s._session.get_auth().get_token()
 
 ## Development Setup
 
-### Create a virtual env and install python
+### Create a Python Enviroment
+
+If using Conda create a new Conda environment:
+
+```
+conda create -f environment.yml
+conda activate register-api
+```
+
+Otherwise create a Python virtual environment. Your system will need to already have rust installed:
 
 ```python -m venv .venv 
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
 ```
-### start up a postgres server
 
-### update inis, env files
+Install the package requirements and the register-api software into the Python environment:
 
-### Run the server
-.venv/bin/uvicorn main:app --reload
+```
+pip install -r requirements.txt
+pip install -e .
+```
+
+### Start up the Postgres Server
+
+The docker compose file can be used to load a local development Postgres server without running the register-api application:
+
+```
+docker compose up db -d
+```
+
+The database is stored persistently in a named Docker volume.
+
+### Initialize the database
+
+The following script will initialize the Postgres database. You will need to have installed the register-api package into the Python environment for this command to work.
+
+```
+python ap/db/init_db.py
+```
+
+### Environment Variables
+
+The `env.local_dev` file contains the environment variables necessary for directing the locally running instance of register-api to the Docker launched postgres database as well to a locally running Invenio RDM instance.
+
+Source this file into the shell environment before running the server:
+
+```
+source env.local_dev
+```
+
+### Run the Server
+
+With dependencies configured and the database running and initialized you can launch the local development version of the register-api server. The `--reload` causes the server to restart when changes to the software are made.
+
+```
+uvicorn main:app --reload
+```
 
 ## Docker Setup
-`docker-compose up`
 
+Run Docker compuse without specifying a target:
+
+```
+docker-compose up
+```
 
 ## Database Cleanup
 
