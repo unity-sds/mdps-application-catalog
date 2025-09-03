@@ -2,13 +2,15 @@ name: Docker
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
+    # Publish `main` as Docker `latest` image.
     branches:
-      - 'master'
+      - 'main'
       - 'chore/42-dockerize-inveniordm'
+    paths:
+      - 'ogc-application-catalog/**'
     # Publish `v1.2.3` tags as releases.
     tags:
-      - v*
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       reason:
@@ -37,14 +39,14 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
-            # set latest tag for default branch (master)
+            # set latest tag for default branch (main)
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Populate image build timestamp
         id: date
         run: echo "IMAGE_BUILD_TIMESTAMP=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
 
-#      - name: Populate Sentry release tag for master branch
+#      - name: Populate Sentry release tag for main branch
 #        run: echo "SENTRY_RELEASE=${{github.sha}}" >> $GITHUB_ENV
 #        if: ${{steps.meta.outputs.version == 'latest'}}
 
@@ -65,6 +67,7 @@ jobs:
       - name: Build and publish image
         uses: docker/build-push-action@v5
         with:
+          context: ./ogc-application-catalog
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
