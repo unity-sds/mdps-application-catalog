@@ -48,7 +48,7 @@ resource "aws_db_instance" "catalog" {
 
     #creds for root user
     username = "invenio"
-    password = var.db_password
+    password = random_password.postgres_password.result
 
     db_subnet_group_name = aws_db_subnet_group.catalog.name
     vpc_security_group_ids = [aws_security_group.rds_sg.id]

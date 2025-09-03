@@ -1,17 +1,11 @@
-#VPC
-# variable "vpc_id" {
-#     type = string
-#     description = "vpc id"
-#     sensitive = true
-# }
+
+variable "vpc_name" {
+    type = string
+    default = "Unity-Dev-VPC"
+}
 
 # AWS OpenSearch
 variable os_username {
-    type = string
-    sensitive = true
-}
-
-variable os_password {
     type = string
     sensitive = true
 }
@@ -20,39 +14,13 @@ variable os_port {
     type = number
 }
 
-# AWS EKS
-variable "account_id" {
-    type = string
-    description = "aws account id"
-    sensitive = true
-}
-# variable "ami_id" {
-#     type = string
-#     description = "ami id"
-#     sensitive = true
-# }
-
-# AWS RDS 
-variable "aws_region" {
-    type        = string
-    description = "aws region"
-    default     = "us-west-2"
-}
-
-variable "aws_profile" {
-    type = string
-    description = "aws credentials profile"
-}
-
-# AWS LB Controller
-# variable "irsa_name" {
-#     type = string
-# }
-# variable "irsa_arn" {
-#     type = string
-# }
 variable "aws_cert_arn" {
     type = string
+}
+
+variable "aws_region" {
+    type = string
+    default = "us-west-2"
 }
 
 # AWS Route53
@@ -61,12 +29,6 @@ variable "zone_name" {
     description = "route53 zone name"
 }
 
-# Postgres
-variable "db_password" {
-    type        = string
-    description = "db password"
-    sensitive   = true
-}
 
 # RabbitMQ
 variable "rabbit_mq_username" {
@@ -75,21 +37,11 @@ variable "rabbit_mq_username" {
     sensitive   = true
 }
 
-variable "rabbit_mq_password" {
-    type        = string
-    description = "RabbitMQ password"
-    sensitive   = true
-}
-
 # COMMON
 variable "namespace" {
     type = string
     description = "namespace for app and ingress"
 }
-# variable "app_hostname" {
-#     type = string
-#     description = "invenio hostname"
-# }
 
 # InvenioRDM
 variable "invenio_init" {

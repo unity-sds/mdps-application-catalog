@@ -89,6 +89,7 @@ extraConfig:
     INVENIO_APP_ALLOWED_HOSTS: '["${invenio_hostname}"]'
 
 web:
+  replicas: 1
   service:
     type: ClusterIP
 

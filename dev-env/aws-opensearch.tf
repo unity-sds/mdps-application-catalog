@@ -22,10 +22,9 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
     domain_name = "invenio-domain"
     engine_version = "OpenSearch_2.19"
     access_policies = templatefile("${path.module}/opensearch-access-policy.json.tmpl", {
-        account_id = var.account_id
+        account_id = data.aws_caller_identity.current.account_id
         domain_name = "invenio-domain"
         aws_region = var.aws_region
-        #eks_cluster_role_arn = module.eks.eks_managed_node_groups["invenio"].iam_role_arn
     })
 
     advanced_security_options {
@@ -34,7 +33,7 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
       master_user_options {
         master_user_name = var.os_username
         # The master user password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
-        master_user_password = var.os_password
+        master_user_password = random_password.opensearch_password.result
       }
     }
 
@@ -77,8 +76,6 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
     advanced_options = {
       "rest.action.multi.allow_explicit_index" = "true"
     }
-
-    depends_on = [ module.eks ]
 }
 
 output "opensearch_hostname" {

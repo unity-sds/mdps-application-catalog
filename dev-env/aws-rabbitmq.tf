@@ -33,7 +33,10 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     engine_version = "3.13"
     host_instance_type = "mq.t3.micro"
     deployment_mode = "SINGLE_INSTANCE"
+    
+    # only a single subnet allowed in single_instance deployment
     subnet_ids = [local.private_subnet_ids[0]]
+    
     security_groups = [aws_security_group.rabbitmq_sg.id]
     publicly_accessible =  false
     configuration {
@@ -42,7 +45,7 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     }
     user {
         username = var.rabbit_mq_username
-        password = var.rabbit_mq_password
+        password = random_password.rabbitmq_password.result
     }
 
     auto_minor_version_upgrade = true
@@ -53,8 +56,6 @@ resource "aws_mq_broker" "rabbitmq_broker" {
     # }
     
     apply_immediately = true
-
-    depends_on = [aws_security_group.rds_sg, aws_mq_configuration.rabbitmq_broker_config]
 }
 
 # aws mq config
