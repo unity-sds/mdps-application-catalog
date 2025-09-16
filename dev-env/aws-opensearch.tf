@@ -58,7 +58,9 @@ resource "aws_opensearch_domain" "invenio_opensearch" {
     }
 
     cluster_config {
-        instance_type = "t3.small.search"
+        # It's critical that we DO NOT use the opensearch optimized instance types. They are set to a default re-index latency of 10s,
+        # and Invenio hard codes 5s into a number of their index templates. Defaults for non-optimized instances are 1s.
+        instance_type = "c6g.large.search"
         instance_count = 2
         zone_awareness_enabled = true
 

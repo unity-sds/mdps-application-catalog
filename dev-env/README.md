@@ -157,3 +157,10 @@ terraform destroy -var-file="[tfvars_file_name].tfvars"
 helm uninstall [helm_release_package_name]
 terraform apply -var-file="[tfvars_file_name].tfvars"
 ```
+
+# OPENSearch Operations
+
+From within the VPC, run a command like:
+
+curl -XGET -u 'osadmin:******' "https://vpc-invenio-domain-6sjxeje7vah6nagadhpk4fuysu.us-west-2.es.amazonaws.com/_cat/indices?v" to list indices
+curl -XDELETE -u 'osadmin:***' "https://vpc-invenio-domain-6sjxeje7vah6nagadhpk4fuysu.us-west-2.es.amazonaws.com/demo*" to delete them

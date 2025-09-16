@@ -399,8 +399,7 @@ module "eks" {
             })
         }
         aws-efs-csi-driver = {
-            most_recent = false
-            version = "2.1.11"
+            most_recent = true
             configuration_values = jsonencode({
                 useFIPS = true
             })
