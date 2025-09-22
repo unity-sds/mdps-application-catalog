@@ -1,0 +1,7 @@
+name: register-api
+channels:
+- conda-forge
+dependencies:
+- python<=3.12
+- rust
+- psycopg2-binary==2.9.9 # Install here or else get segfaults in psycopg2 module when installed through pip

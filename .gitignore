@@ -8,3 +8,9 @@ register-api/storage
 **/invenio-values*
 **/*.tfvars
 **/locals copy.tf
+**/*.DS_Store
+**/*.egg-info
+**/.terraform
+register-api/build
+**/__pycache__
+**/celerybeat-schedule.*

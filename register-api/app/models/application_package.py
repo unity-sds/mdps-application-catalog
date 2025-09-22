@@ -1,22 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from app.models.application_package_db import ApplicationPackage
 
+
+from app.models.application_package_version import ApplicationPackageVersion
+
 class ApplicationPackageDetails(BaseModel):
     namespace: str
     artifactName: str
-    artifactVersion: str
-    cwlId: str
     dateCreated: datetime
     dateUpdated: datetime
-    published: bool
     description: Optional[str] = None
-    uploader: Optional[str] = None
-    publishedDate: Optional[datetime] = None
     sourceRepository: Optional[str] = None
     dockerImage: Optional[str] = None
-    cwlUrl: Optional[str] = None
+    versions: List[ApplicationPackageVersion] = []
+    id: Optional[str] =  None
 
     @classmethod
     def from_db_package(cls, package: ApplicationPackage) -> 'ApplicationPackageDetails':
@@ -26,17 +25,43 @@ class ApplicationPackageDetails(BaseModel):
         return cls(
             namespace=package.namespace,
             artifactName=package.artifact_name,
-            artifactVersion=package.artifact_version,
-            cwlId=package.cwl_id,
             dateCreated=package.created_at,
             dateUpdated=package.updated_at or package.created_at,
-            published=package.published,
             description=package.description,
-            uploader=package.uploader,
-            publishedDate=package.published_date,
+            sourceRepository=package.source_repository,
+            dockerImage=package.docker_image
+        )
+    
+    @classmethod
+    def from_db_package_with_versions(cls, package: ApplicationPackage) -> 'ApplicationPackageDetails':
+        """
+        Create an ApplicationPackageDetails from a database ApplicationPackage model
+        """
+        return cls(
+            namespace=package.namespace,
+            artifactName=package.artifact_name,
+            dateCreated=package.created_at,
+            dateUpdated=package.updated_at or package.created_at,
+            description=package.description,
             sourceRepository=package.source_repository,
             dockerImage=package.docker_image,
-            cwlUrl=package.cwl_url,
+            versions=[ApplicationPackageVersion.from_db_package_version(version) for version in package.versions]
+        )
+    
+    @classmethod
+    def from_rdm_package(cls, package) -> 'ApplicationPackageDetails':
+        """
+        create an application pacakge from RDM
+        """
+        return cls(
+            namespace=package['parent']['communities']['entries'][0]['slug'],
+            artifactName=package['metadata']['title'],
+            dateCreated=package['created'],
+            dateUpdated=package['updated'],
+            description=package['metadata']['description'],
+            sourceRepository=package['custom_fields']['mdps:software_repository_url'],
+            dockerImage=None,
+            id=package['id']
         )
 
 class ApplicationPackageCreate(BaseModel):
