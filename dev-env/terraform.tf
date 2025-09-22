@@ -1,6 +1,6 @@
 terraform {
     backend "s3" {
-    bucket = "mdps-sit-artifact-catalog"
+    bucket = "catalya-app-catalog"
     key    = "terraform/rdm/terraform.tfstate"
     region = "us-west-2"
   }
@@ -49,28 +49,28 @@ provider "helm" {
 
 /*
 provider "kubernetes" {
-    host = module.eks.cluster_endpoint #module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data) #base64decode(module.eks.certificate_authority[0].data) #base64decode(module.eks.cluster_certificate_authority_data)
+    host = data.aws_eks_cluster.cluster.cluster_endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.cluster_certificate_authority_data)
     # mutually exclusive with exec
     token = data.aws_eks_cluster_auth.cluster_auth.token
     exec {
         api_version = "client.authentication.k8s.io/v1beta1"
         command     = "aws"
-        args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--output", "json"]
+        args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.cluster_name, "--output", "json"]
     }
 }
 
 # used to deploy packages in kubernetes
 provider "helm" {
     kubernetes {
-        host = module.eks.cluster_endpoint #module.eks.cluster_endpoint
-        cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data) #base64decode(module.eks.cluster_endpoint.certificate_authority[0].data) #base64decode(module.eks.cluster_certificate_authority_data)
+        host = data.aws_eks_cluster.cluster.cluster_endpoint #module.eks.cluster_endpoint
+        cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.cluster_certificate_authority_data) #base64decode(module.eks.cluster_endpoint.certificate_authority[0].data) #base64decode(module.eks.cluster_certificate_authority_data)
         # mutually exclusive with exec
         token = data.aws_eks_cluster_auth.cluster_auth.token
         exec {
             api_version = "client.authentication.k8s.io/v1beta1"
             command     = "aws"
-            args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--output", "json"]
+            args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.cluster_name, "--output", "json"]
         }
     }
 }*/

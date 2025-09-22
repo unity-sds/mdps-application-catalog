@@ -1,7 +1,7 @@
 resource "aws_security_group" "opensearch_sg" {
     name = "opensearch-sg"
     description = "Allow EKS to talk to OpenSearch"
-    vpc_id = data.aws_ssm_parameter.vpc_id.value
+    vpc_id = data.aws_vpc.application_vpc.id
 
     ingress {
         from_port = var.os_port

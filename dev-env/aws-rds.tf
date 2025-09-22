@@ -6,7 +6,7 @@
 resource "aws_security_group" "rds_sg" {
     name = "rds_sg"
     description = "PostgresSQL access"
-    vpc_id = data.aws_ssm_parameter.vpc_id.value
+    vpc_id = data.aws_vpc.application_vpc.id
 
     #inbound
     ingress {

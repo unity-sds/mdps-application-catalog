@@ -2,7 +2,7 @@
 
 resource "aws_security_group" "rabbitmq_sg" {
     name = "rabbitmq-sg"
-    vpc_id = data.aws_ssm_parameter.vpc_id.value
+    vpc_id = data.aws_vpc.application_vpc.id
 
     ingress {
         from_port   = 5671  # AMQP over TLS

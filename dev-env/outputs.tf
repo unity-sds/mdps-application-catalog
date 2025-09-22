@@ -1,7 +1,7 @@
 # Module VPC
 output "vpc_id" {
     description = "VPC Id"
-    value = data.aws_ssm_parameter.vpc_id.value
+    value = data.aws_vpc.application_vpc.id
     sensitive = true
 }
 output "private_cidr_blocks" {
@@ -12,18 +12,6 @@ output "public_cidr_blocks" {
     description = "public cidr block"
     value = local.private_subnet_cidr_values
 }
-
-# Module EKS
-output "cluster_name" {
-    value = module.eks.cluster_name
-}
-
-# output "cluster_endpoint" {
-#     value = module.eks.cluster_endpoint
-# }
-# output "cluster_certificiate_authority_data" {
-#     value = module.eks.cluster_certificate_authority_data
-# }
 
 #RDS
 output "rds_hostname" {

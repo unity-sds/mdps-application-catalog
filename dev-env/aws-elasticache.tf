@@ -6,7 +6,7 @@ resource "aws_elasticache_subnet_group" "redis_subnet_group" {
 resource "aws_security_group" "redis_sg" {
     name = "redis-sg"
     description = "Allow Redis Access"
-    vpc_id = data.aws_ssm_parameter.vpc_id.value
+    vpc_id = data.aws_vpc.application_vpc.id
 
     ingress {
         from_port = 6379

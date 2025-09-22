@@ -6,11 +6,6 @@ data "aws_vpc" "application_vpc" {
   }
 }
 
-// get vpc_id
-data "aws_ssm_parameter" "vpc_id" {
-    name = "/unity/shared-services/network/vpc_id"
-}
-
 data "aws_subnets" "public_subnets" {
   filter {
     name   = "vpc-id"
@@ -18,18 +13,16 @@ data "aws_subnets" "public_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*Pub*"]
+    values = ["*pub*"]
   }
 }
 
 data "aws_eks_cluster" "cluster" {
   name = "cat-cluster"
-  depends_on = [module.eks]
 }
 
 data "aws_eks_cluster_auth" "cluster" {
   name = "cat-cluster"
-  depends_on = [module.eks]
 }
 
 data "aws_iam_policy" "aws-managed-load-balancer-policy" {
@@ -43,7 +36,7 @@ data "aws_subnets" "private_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["*Priv*"]
+    values = ["*priv*"]
   }
 }
 
@@ -55,8 +48,4 @@ data "aws_subnet" "private_details" {
 data "aws_subnet" "public_details" {
   for_each = toset(data.aws_subnets.public_subnets.ids)
   id       = each.value
-}
-
-data "aws_ssm_parameter" "ami_id" {
-    name = "/mcp/amis/aml2023-eks-1-32"
 }
