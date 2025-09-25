@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-volume 
+spec:
+  accessModes:
+    - ReadWriteMany # Or ReadWriteMany, ReadOnlyMany depending on storage type
+  resources:
+    requests:
+      storage: 5Gi # Request 1 Gigabyte of storage
+  storageClassName: efs-sc

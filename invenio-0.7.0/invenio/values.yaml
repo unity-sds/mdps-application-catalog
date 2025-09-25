@@ -1,0 +1,689 @@
+---
+
+global:
+  timezone: "Europe/Zurich"
+
+## @param nameOverride String to partially override common.names.name
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride: ""
+
+## Invenio image version
+## ref: https://github.com/inveniosoftware/demo-inveniordm/pkgs/container/demo-inveniordm%2Fdemo-inveniordm
+## @param image.registry Invenio image registry
+## @param image.repository Invenio image repository
+## @skip image.tag Invenio image tag (immutable tags are recommended)
+## @param image.digest Invenio image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+## @param image.pullPolicy Invenio image pull policy
+## @param image.pullSecrets Invenio image pull secrets
+image:
+  registry: ghcr.io/inveniosoftware
+  repository: demo-inveniordm/demo-inveniordm
+  tag: ""  # Defaults to .Chart.appVersion
+  digest: ""
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - name: myRegistryKeySecretName
+  ##
+  pullSecrets: []
+
+ingress:
+  annotations: {}
+  enabled: false
+  class: ""
+  tlsSecretNameOverride: ""
+
+invenio:
+  ## @param invenio.hostname Invenio hostname (templated) used in configuration varibales like APP_ALLOWED_HOSTS, SITE_HOSTNAME or SITE_URL
+  ##
+  hostname: ""
+  ## @param invenio.secret_key DEPRECATED: this is automatically generated now, or set by custom secret using invenio.existingSecret
+  ##
+  secret_key: ""
+  ## @param invenio.security_login_salt DEPRECATED: this is automatically generated now, or set by custom secret using invenio.existingSecret
+  ##
+  security_login_salt: ""
+  ## @param invenio.csrf_secret_salt DEPRECATED: this is automatically generated now, or set by custom secret using invenio.existingSecret
+  ##
+  csrf_secret_salt: ""
+  ## @param invenio.existing_secret DEPRECATED: this is automatically generated now, or set by custom secret using invenio.existingSecret
+  ##
+  existing_secret: false
+
+  ## @param invenio.existingSecret General existing secret name for, at least, secret key and salts
+  ## If not set a new secret will be generated automatically with random values
+  ## ref: https://inveniordm.docs.cern.ch/customize/authentication/#security
+  ##
+  existingSecret: ""
+  init: false
+  default_users: []  # Requires invenio.init=true
+  demo_data: false  # Setting invenio.demo_data=true requires also setting default_users!
+  sentry:
+    ## @param invenio.sentry.enabled Enable Sentry.io integration
+    ##
+    enabled: false
+    ## @param invenio.sentry.dns Sentry DSN, required unless existingSecret is provided
+    ##
+    dsn: ""
+    ## @param invenio.sentry.secret_name DEPRECATED: invenio.sentry.existingSecret instead
+    ##
+    secret_name: ""
+    ## @param invenio.sentry.existing_secret DEPRECATED: invenio.sentry.existingSecret instead
+    ##
+    existing_secret: false
+    ## @param invenio.sentry.existingSecret Existing secret name for sentry's dsn
+    ##
+    existingSecret: ""
+    ## @param invenio.sentry.secretKeys.dsnKey Name of key in existing secret to use for dns.
+    ##
+    secretKeys:
+      dsnKey: "SENTRY_DSN"
+
+  ## Invenio DataCite configuration
+  ## ref: https://inveniordm.docs.cern.ch/customize/dois
+  datacite:
+    ## @param invenio.datacite.enabled Enable DataCite provider
+    ##
+    enabled: false
+    ## @param invenio.datacite.username Datacite username
+    ##
+    username: ""
+    ## @param invenio.datacite.password Datacite password
+    ##
+    password: ""
+    ## @param invenio.datacite.existingSecret Existing secret name for datacite username and password.
+    ##
+    existingSecret: "datacite-secrets"
+    ## @param invenio.datacite.secretKeys.usernameKey Name of key in existing secret to use for username. Only used when `invenio.datacite.existingSecret` is set.
+    ## @param invenio.datacite.secretKeys.passwordKey Name of key in existing secret to use for password. Only used when `invenio.datacite.existingSecret` is set.
+    ##
+    secretKeys:
+      usernameKey: "DATACITE_USERNAME"
+      passwordKey: "DATACITE_PASSWORD"
+    ## @param invenio.datacite.prefix DataCite DOI prefix, it will translate into DATACITE_PREFIX.
+    ##
+    prefix: ""
+    ## @param invenio.datacite.testMode DataCite test mode enabled, it will trasnlate into DATACITE_TEST_MODE.
+    ## This has to be a string value, Invenio will evaluate this as a python expression and transform it into a boolean.
+    ## Example:
+    ## testMode: "False"
+    ##
+    testMode: ""
+    ## @param invenio.datacite.format A string used for formatting the DOI, it will translate into DATACITE_FORMAT.
+    ##
+    format: ""
+    ## @param invenio.datacite.dataCenterSymbol DataCite data center symbol, it will translate into DATACITE_DATACENTER_SYMBOL.
+    ##
+    dataCenterSymbol: ""
+    ## @param invenio.datacite.existing_secret DEPRECATED: use invenio.datacite.existingSecret instead
+    ##
+    existing_secret: false
+    ## @param invenio.datacite.secret_name DEPRECATED: use invenio.datacite.existingSecret instead
+    ##
+    secret_name: ""
+  podSecurityContext:
+    enabled: true
+  remote_apps:
+    enabled: false
+    existing_secret: false
+    secret_name: "remote-apps-secrets"
+    credentials:
+      - name: ""
+        consumer_key: ""
+        consumer_secret: ""
+  ## @param invenio.extra_config DEPRECATED: invenio.extraConfig instead
+  extra_config: {}
+  ## @param invenio.extraConfig Extra environment variables (templated) to be added to all the pods.
+  ##
+  extraConfig: {}
+  ## @param invenio.extra_env_from_secret DEPRECATED: Use `invenio.extraEnvFrom` or `invenio.extraEnvVars` instead.
+  extra_env_from_secret: []
+  ## @param invenio.extraEnvVars Extra environment variables to be added to all the pods.
+  ##
+  extraEnvVars: []
+  uwsgiExtraConfig: {}
+  ## @param invenio.extraEnvFrom Extra secretRef or configMapRef for the `envFrom` field in all Invenio containers (templated).
+  ##
+  extraEnvFrom: []
+    # - secretRef:
+    #     name: foo
+    # - configMapRef:
+    #     name: bar
+
+  ## @param invenio.vocabularies Vocabularies to be loaded as files under /app_data/vocabularies
+  ## Example
+  ## vocabularies:
+  ##   resource_types.yaml: |
+  ##    - id: publication
+  ##      icon: file alternate
+  ##      props:
+  ##        csl: report
+  ##        datacite_general: Text
+  ##        datacite_type: ""
+  ##        openaire_resourceType: "0017"
+  ##        openaire_type: publication
+  ##        eurepo: info:eu-repo/semantics/other
+  ##        schema.org: https://schema.org/CreativeWork
+  ##        subtype: ""
+  ##        type: publication
+  ##        marc21_type: publication
+  ##        marc21_subtype: ""
+  ##      title:
+  ##        en: Publication
+  ##      tags:
+  ##        - depositable
+  ##        - linkable
+  vocabularies: {}
+
+nginx:
+  image: "nginx:1.24.0"
+  max_conns: 100
+  assets:
+    location: /opt/invenio/var/instance/static
+  records:
+    client_max_body_size: 100m
+  files:
+    client_max_body_size: 50G
+  ## @param nginx.resources `resources` for the nginx container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # requests:
+    #   cpu: 250m
+    #   memory: 500Mi
+    # limits:
+    #   cpu: 250m
+    #   memory: 500Mi
+  ## @param nginx.extra_server_config DEPRECATED: Use nginx.extraServerConfig instead.
+  ##
+  extra_server_config: ""
+  ## @param nginx.extraServerConfig Extra configuration to be added to nginx.conf under the server section (templated).
+  ##
+  extraServerConfig: ""
+  denied_ips: ""
+  denied_uas: ""
+  ## @param nginx.securityContext securityContext for the nginx container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+web:
+  image: ""  # DEPRECATED: Use `.Values.image` instead!
+  imagePullSecret: ""  # DEPRECATED: Use `.Values.image.imagePullSecrets` instead!
+  replicas: 6
+  terminationGracePeriodSeconds: 60
+  uwsgi:
+    processes: 6
+    threads: 4
+  ## @param web.extraEnvVars Extra environment variables to be added to the pods.
+  ##
+  extraEnvVars: []
+  autoscaler:
+    enabled: false
+    scaler_cpu_utilization: 65
+    max_web_replicas: 10
+    min_web_replicas: 2
+  ## @param web.readinessProbe templated `readinessProbe` for the web container
+  ##
+  readinessProbe:
+    exec:
+      command:
+        - /bin/bash
+        - -c
+        - "uwsgi_curl -X HEAD -H 'Host: {{ include \"invenio.hostname\" $ }}' $(hostname):5000 /ping"
+    failureThreshold: 3
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 1
+  ## @param web.startupProbe templated `startupProbe` for the web container
+  ##
+  startupProbe:
+    exec:
+      command:
+        - /bin/bash
+        - -c
+        - "uwsgi_curl -X HEAD -H 'Host: {{ include \"invenio.hostname\" $ }}' $(hostname):5000 /ping"
+    failureThreshold: 3
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 5
+  ## @param web.livenessProbe templated `livenessProbe` for the web container
+  ##
+  livenessProbe: null
+  assets:
+    location: /opt/invenio/var/instance/static
+  ## @param web.resources `resources` for the web container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # requests:
+    #   cpu: 500m
+    #   memory: 500Mi
+    # limits:
+    #   cpu: 1000m
+    #   memory: 1Gi
+  initContainers:
+    ## @param web.initContainers.resources `resources` for the copy-web-assets initContainer
+    ##
+    ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+    ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+    ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+    ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+    ##
+    resources: {}
+      # requests:
+      #   cpu: '1'
+      #   memory: 100Mi
+      # limits:
+      #   cpu: '1'
+      #   memory: 100Mi
+    ## @param web.initContainers.securityContext securityContext for the initContainers in the web pod
+    ##
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+  ## @param web.annotations Add extra (templated) annotations to the web service
+  ##
+  annotations: {}
+  ## @param web.nodeSelector Node labels for web pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param web.tolerations Tolerations for web pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## Invenio web service parameters
+  ##
+  service:
+    ## @param service.type web service type
+    ##
+    type: ClusterIP
+  ## @param web.podSecurityContext securityContext for the web pod
+  ##
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param web.securityContext securityContext for the web container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  ## @param web.extraEnvFrom Extra secretRef or configMapRef for the `envFrom` field in the web container (templated).
+  ##
+  extraEnvFrom: []
+    # - secretRef:
+    #     name: foo
+    # - configMapRef:
+    #     name: bar
+
+worker:
+  enabled: true
+  image: ""  # DEPRECATED: Use `.Values.image` instead!
+  imagePullSecret: ""  # DEPRECATED: Use `.Values.image.imagePullSecrets` instead!
+  app: invenio_app.celery
+  concurrency: 2
+  log_level: INFO
+  replicas: 2
+  run_mount_path: /var/run/celery
+  celery_pidfile: /var/run/celery/celerybeat.pid
+  celery_schedule: /var/run/celery/celery-schedule
+  ## @param worker.extraEnvVars Extra environment variables to be added to the pods.
+  ##
+  extraEnvVars: []
+  ## @param worker.resources `resources` for the worker container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # requests:
+    #   cpu: 500m
+    #   memory: 500Mi
+    # limits:
+    #   cpu: 1000m
+    #   memory: 1Gi
+  volumes:
+    enabled: false
+  ## @param worker.podSecurityContext securityContext for the worker Pod
+  ##
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param worker.securityContext securityContext for the worker container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  ## @param worker.extraEnvFrom Extra secretRef or configMapRef for the `envFrom` field in the worker container (templated).
+  ##
+  extraEnvFrom: []
+    # - secretRef:
+    #     name: foo
+    # - configMapRef:
+    #     name: bar
+  ## @param worker.nodeSelector Node labels for worker pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param worker.tolerations Tolerations for worker pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param worker.livenessProbe templated `livenessProbe` for the worker container
+  ##
+  livenessProbe:
+    exec:
+      command:
+        - /bin/bash
+        - -c
+        - "celery -A {{ .Values.worker.app }} inspect ping -d celery@$(hostname)"
+    initialDelaySeconds: 20
+    timeoutSeconds: 30
+  ## @param worker.readinessProbe templated `readinessProbe` for the worker container
+  ##
+  readinessProbe: null
+  ## @param worker.startupProbe templated `startupProbe` for the worker container
+  ##
+  startupProbe: null
+
+workerBeat:
+  ## @param workerBeat.extraEnvVars Extra environment variables to be added to the pods.
+  ##
+  extraEnvVars: []
+  ## @param workerBeat.resources `resources` for the worker-beat container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # limits:
+    #   cpu: "2"
+    #   memory: 500Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 200Mi
+  ## @param workerBeat.securityContext securityContext for the worker-beat container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  ## @param workerBeat.podSecurityContext securityContext for the worker-beat pod
+  ##
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## @param workerBeat.extraEnvFrom Extra secretRef or configMapRef for the `envFrom` field in the worker-beat container (templated).
+  ##
+  extraEnvFrom: []
+    # - secretRef:
+    #     name: foo
+    # - configMapRef:
+    #     name: bar
+  ## @param workerBeat.nodeSelector Node labels for workerBeat pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param workerBeat.tolerations Tolerations for workerBeat pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param workerBeat.livenessProbe templated `livenessProbe` for the worker-beat container
+  ##
+  livenessProbe:
+    exec:
+      command:
+        - /bin/bash
+        - -c
+        - "celery -A {{ .Values.worker.app }} inspect ping"
+    initialDelaySeconds: 20
+    timeoutSeconds: 30
+  ## @param workerBeat.readinessProbe templated `readinessProbe` for the worker-beat container
+  ##
+  readinessProbe: null
+  ## @param workerBeat.startupProbe templated `startupProbe` for the worker-beat container
+  ##
+  startupProbe: null
+
+persistence:
+  enabled: true
+  name: "shared-volume"
+  access_mode: ReadWriteMany
+  annotations: {}
+  size: 10G
+  storage_class: ""
+  useExistingClaim: false
+
+redis:
+  enabled: true
+  auth:
+    enabled: false  # Dangerous! This lets Invenio connect to Redis unauthenticated!
+  master:
+    disableCommands: []  # Dangerous! This lets us run the `FLUSHALL` and `FLUSHDB` commands! Unfortunately, they are required by the wipe_recreate.sh script when installing Invenio.
+  replica:
+    disableCommands: []  # Dangerous! This lets us run the `FLUSHALL` and `FLUSHDB` commands! Unfortunately, they are required by the wipe_recreate.sh script when installing Invenio.
+
+## RabbitMQ chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/rabbitmq/values.yaml
+rabbitmq:
+  enabled: true
+  auth:
+    password: ""
+
+## External RabbitMQ configuration
+## All of these values are only used when rabbitmq.enabled is set to false
+## @param rabbitmqExternal.username RabbitMQ user
+## @param rabbitmqExternal.password Password
+## @param rabbitmqExternal.amqpPort
+## @param rabbitmqExternal.managementPort
+## @param rabbitmqExternal.hostname
+## @param rabbitmqExternal.protocol
+## @param rabbitmqExternal.vhost
+## @param rabbitmqExternal.existingSecret Name of an existing secret resource containing the credentials
+## @param rabbitmqExternal.existingSecretPasswordKey Name of an existing secret key containing the credentials
+##
+rabbitmqExternal: {}
+  # username: invenio
+  # password: ""
+  # amqpPort: 5672
+  # managementPort: 15672
+  # hostname: ""
+  # protocol: ""
+  # vhost: ""
+  # existingSecret: ""
+  # existingSecretPasswordKey: "amqp-password"
+
+flower:
+  enabled: true
+  image: "mher/flower:2.0"
+  secret_name: "flower-secrets"
+  default_username: "flower"
+  default_password: "flower_password"
+  host: ""
+  ## @param flower.resources `resources` for the flower-management container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # requests:
+    #   memory: 125Mi
+    #   cpu: 0.02
+    # limits:
+    #   memory: 250Mi
+    #   cpu: 0.1
+  ## @param flower.extraEnvFrom Extra secretRef or configMapRef for the `envFrom` field in the flower container (templated).
+  ##
+  extraEnvFrom: []
+    # - secretRef:
+    #     name: foo
+    # - configMapRef:
+    #     name: bar
+  ## @param flower.nodeSelector Node labels for flower pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  ##
+  nodeSelector: {}
+  ## @param flower.tolerations Tolerations for flower pods assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param flower.livenessProbe templated `livenessProbe` for the flower-management container
+  ##
+  livenessProbe: null
+  ## @param flower.readinessProbe templated `readinessProbe` for the flower-management container
+  ##
+  readinessProbe: null
+  ## @param flower.startupProbe templated `startupProbe` for the flower-management container
+  ##
+  startupProbe: null
+
+## PostgreSQL chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart
+## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user
+## @param postgresql.auth.username Name for a custom user to create
+## @param postgresql.auth.password Password for the custom user to create
+## @param postgresql.auth.database Name for a custom database to create
+##
+postgresql:
+  enabled: true
+  auth:
+    username: invenio
+    password: ""
+    database: invenio
+    existingSecret: ""
+
+## External PostgreSQL configuration
+## All of these values are only used when postgresql.enabled is set to false
+## @param postgresqlExternal.host Database host
+## @param postgresqlExternal.port Database port number
+## @param postgresqlExternal.user Non-root username for Invenio
+## @param postgresqlExternal.password Password for the non-root username for Invenio
+## @param postgresqlExternal.database Invenio instance database name
+## @param postgresqlExternal.existingSecret Name of an existing secret resource containing the database credentials
+## @param postgresqlExternal.existingSecretPasswordKey Name of an existing secret key containing the database credentials
+##
+postgresqlExternal: {}
+  # hostname: ""
+  # port: 5432
+  # username: invenio
+  # password: ""
+  # database: invenio
+  # existingSecret: ""
+  # existingSecretPasswordKey: "password"
+
+opensearch:
+  enabled: true
+
+externalOpensearch: {}
+
+logstash:
+  enabled: false
+  filebeat_image: "docker.elastic.co/beats/filebeat-oss:8.10.2"
+  filebeat_resources:
+    limits:
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  logstash_image: "docker.elastic.co/logstash/logstash-oss:8.10.2"
+  environment: "qa"
+  cern_monit:
+    enabled: false
+    producer: "invenio"
+  ## @param logstash.securityContext securityContext for the logstash container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+kerberos:
+  enabled: false
+  secret_name: ""
+  image: ""
+  args: []
+  initArgs: []
+  ## @param kerberos.resources `resources` for the kerberos-credentials container
+  ##
+  ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+  ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+  ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+  ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+  ##
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 20Mi
+    # requests:
+    #   cpu: 10m
+    #   memory: 2Mi
+  ## @param kerberos.securityContext securityContext for the kerberos container
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  initContainers:
+    ## @param kerberos.initContainers.resources `resources` for the init-kerberos-credentials initContainers
+    ##
+    ## We have decided to unset resources by default, leaving that as a conscious choice for the user.
+    ## One reason for this is that we want it to be possible to install the chart in minimal environments like minikube.
+    ## Another reason for this choice is that it's practically impossible to know which resource requests/limits are right, since that is entirely dependent on the hardware resources available in the target cluster as well as how the application is used (ammount of traffic, number of concurrent users, size of uploaded artifacts, etc.).
+    ## Therefore, we think it's better that users get to set the resources explicitly for each container.
+    ##
+    resources: {}
+      # limits:
+      #   cpu: 100m
+      #   memory: 20Mi
+      # requests:
+      #   cpu: 10m
+      #   memory: 2Mi

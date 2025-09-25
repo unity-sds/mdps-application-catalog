@@ -1,0 +1,16 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: cat-cluster
+  region: us-west-2
+  version: "1.32"
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: AmazonEKS_EFS_CSI_DriverRole
+        namespace: kube-system 
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy" # Example policy

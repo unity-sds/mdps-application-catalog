@@ -1,0 +1,35 @@
+apiVersion: v2
+appVersion: 12.0.10
+dependencies:
+- condition: opensearch.enabled
+  name: opensearch
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 1.4.0
+- condition: postgresql.enabled
+  name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 14.3.3
+- condition: rabbitmq.enabled
+  name: rabbitmq
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.9.3
+- condition: redis.enabled
+  name: redis
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 18.12.0
+description: Turn-key research data management platform.
+home: https://inveniosoftware.org/
+icon: https://inveniosoftware.org/static/img/logo-invenio-white.svg
+keywords:
+- digital-repository
+- institutional-repository
+- multimedia-library
+- multimedia-repository
+maintainers:
+- email: info@inveniosoftware.org
+  name: CERN
+name: invenio
+sources:
+- https://github.com/inveniosoftware/invenio-app-rdm
+type: application
+version: 0.7.0

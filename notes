@@ -1,0 +1,5 @@
+ALB needs to be updated to support SSL port
+Fine tune 'allowed_hosts' capability, currently hard coded in templates
+Templated values for open search has changed in 0.7.0
+
+assume EKS cluster + nodes, work on storage classes, etc
