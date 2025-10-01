@@ -14,6 +14,8 @@ COPY site ./site
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --system
 
+RUN pip install click limits tomli async_timeout
+
 COPY ./docker/uwsgi/ ${INVENIO_INSTANCE_PATH}
 COPY ./invenio.cfg ${INVENIO_INSTANCE_PATH}
 COPY ./templates/ ${INVENIO_INSTANCE_PATH}/templates/
