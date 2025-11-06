@@ -13,6 +13,9 @@ uwsgi = ">=2.0"
 uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
 
+# Build from source to avoid segfaults with psycopg2-binary built against incompatible libs
+psycopg2 = "~=2.9.0"
+
 [requires]
 python_version = "3.12"
 
