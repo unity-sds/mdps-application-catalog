@@ -10,11 +10,12 @@
 
 FROM registry.cern.ch/inveniosoftware/almalinux:1
 
+RUN dnf update -y
+
 COPY site ./site
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --system
-
-RUN pip install click limits tomli async_timeout
+RUN pip install pillow click limits tomli async_timeout alembic maxminddb referencing bleach
 
 COPY ./docker/uwsgi/ ${INVENIO_INSTANCE_PATH}
 COPY ./invenio.cfg ${INVENIO_INSTANCE_PATH}

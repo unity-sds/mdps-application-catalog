@@ -3,7 +3,8 @@ channels:
 - conda-forge
 dependencies:
 - python==3.12.11
-- openssl<3.0.0 # >=3.0.0 causes seg faults in psycopg2 module 
+- libpq # to build python-psycopg2
+- openssl
 - nodejs
 - imagemagick
 - expect
