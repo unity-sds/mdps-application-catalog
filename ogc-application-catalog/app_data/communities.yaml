@@ -1,0 +1,39 @@
+---
+- slug: maap
+  metadata:
+    title: "MAAP"
+    description: >
+      The MAAP platform is engineered to combine data, algorithms, and
+      computational abilities to process and share Earth Science data
+      at-scale in the cloud.
+    type:
+      id: "organization"
+    website: "https://maap-project.org/"
+  children:
+    allow: true
+  access:
+    visibility: "public"
+    members_visibility: "public"
+    member_policy: "open"
+    record_policy: "open"
+    review_policy: "closed"
+  logo: "maap_logo.png"
+- slug: tropess
+  metadata:
+    title: "TROPESS"
+    description: The TRopospheric Ozone and Precursors from Earth System
+      Sounding (TROPESS) project generates Earth System Data Records (ESDRs)
+      of atmospheric constituents by processing data through a common retrieval 
+      algorithm.
+    type:
+      id: "organization"
+    website: "https://tes.jpl.nasa.gov/tropess/"
+  children:
+    allow: true
+  access:
+    visibility: "public"
+    members_visibility: "public"
+    member_policy: "open"
+    record_policy: "open"
+    review_policy: "closed"
+  logo: "tropess_logo.png"

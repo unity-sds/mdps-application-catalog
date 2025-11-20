@@ -1,0 +1,10 @@
+---
+# Only used in local development
+- email: admin@maap-project.org
+  username: "admin"
+  full_name: "Application Catalog Admin"
+  active: true
+  confirmed: true
+  password: "123456"
+  roles:
+    - "admin"
