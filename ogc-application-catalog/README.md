@@ -8,7 +8,8 @@ Run the following commands in order to start your new InvenioRDM instance:
 
 ```console
 invenio-cli install
-invenio-cli services setup
+invenio-cli services setup --no-demo-data
+pipenv run invenio app_catalog load-demo
 invenio-cli run
 ```
 
@@ -17,6 +18,11 @@ starts the application and related services (database, Opensearch, Redis
 and RabbitMQ). The build and boot process will take some time to complete,
 especially the first time as docker images have to be downloaded during the
 process.
+
+We use the `--no-demo-data` option above since the Invenio RDM demo records
+will not load properly due to violating our additional metadata validation
+rules. We have created our own command `load-demo` that properly initializes
+demo data.
 
 Once running, visit https://127.0.0.1 in your browser.
 
