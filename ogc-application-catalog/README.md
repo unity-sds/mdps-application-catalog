@@ -9,6 +9,7 @@ Run the following commands in order to start your new InvenioRDM instance:
 ```console
 invenio-cli install
 invenio-cli services setup --no-demo-data
+pipenv run invenio app_catalog load-demo
 invenio-cli run
 ```
 
@@ -20,7 +21,8 @@ process.
 
 We use the `--no-demo-data` option above since the Invenio RDM demo records
 will not load properly due to violating our additional metadata validation
-rules.
+rules. We have created our own command `load-demo` that properly initializes
+demo data.
 
 Once running, visit https://127.0.0.1 in your browser.
 
